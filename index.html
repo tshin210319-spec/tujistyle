@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tujistyle | 経営コンサルティング・民泊運営</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --primary: #1a1a2e;
+      --secondary: #16213e;
+      --accent: #c9a84c;
+      --accent2: #e8d49e;
+      --light: #f7f5ef;
+      --gray: #7a7a8a;
+      --white: #ffffff;
+    }
+
+    body {
+      font-family: 'Hiragino Mincho ProN', 'Yu Mincho', 'Georgia', serif;
+      color: var(--primary);
+      line-height: 1.9;
+      background: var(--white);
+    }
+
+    /* ナビゲーション */
+    nav {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      background: rgba(26, 26, 46, 0.96);
+      backdrop-filter: blur(10px);
+      padding: 18px 48px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: var(--accent);
+      text-decoration: none;
+      letter-spacing: 0.08em;
+    }
+
+    .logo span {
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.5);
+      display: block;
+      letter-spacing: 0.15em;
+      font-family: 'Hiragino Kaku Gothic ProN', sans-serif;
+    }
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      gap: 36px;
+    }
+
+    nav ul a {
+      text-decoration: none;
+      color: rgba(255,255,255,0.7);
+      font-size: 0.85rem;
+      letter-spacing: 0.1em;
+      font-family: 'Hiragino Kaku Gothic ProN', sans-serif;
+      transition: color 0.3s;
+    }
+
+    nav ul a:hover { color: var(--accent); }
+
+    /* ヒーロー */
+    #hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      background: linear-gradient(160deg, var(--primary) 0%, #0f3460 60%, #1a1a2e 100%);
+      padding: 120px 24px 80px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #hero::before {
+      content: '';
+      position: absolute;
+      top: -40%;
+      left: -20%;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(201,168,76,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    #hero::after {
+      content: '';
+      position: absolute;
+      bottom: -20%;
+      right: -10%;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(201,168,76,0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-en {
+      font-size: 0.85rem;
+      letter-spacing: 0.3em;
+      color: var(--accent);
+      margin-bottom: 16px;
+      font-family: 'Hiragino Kaku Gothic ProN', sans-serif;
+    }
+
+    .hero-content h1 {
+      font-size: clamp(2.4rem, 6vw, 4rem);
+      color: var(--white);
+      margin-bottom: 8px;
+      letter-spacing: 0.05em;
+    }
+
+    .hero-content .brand {
+      font-size: clamp(1rem, 3vw, 1.6rem);
+      color: var(--accent);
+      letter-spacing: 0.2em;
+      margin-bottom: 32px;
+      font-family: 'Hiragino Kaku Gothic ProN', sans-serif;
+    }
+
+    .hero-content .tagline {
+      font-size: clamp(0.95rem, 2vw, 1.15rem);
+      color: rgba(255,255,255,0.75);
+      max-width: 540px;
+      margin: 0 auto 48px;
+      line-height: 2;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 14px 40px;
+      border-radius: 2px;
+      text-decoration: none;
+      font-size: 0.9rem;
+      letter-spacing: 0.12em;
+      transition: all 0.3s;
+      font-family: 'Hiragino Kaku Gothic ProN', sans-serif;
+      margin: 8px;
+    }
+
+    .btn-gold {
+      background: var(--accent);
+      color: var(--primary);
+      font-weight: bold;
+    }
+
+    .btn-gold:hover {
+      background: var(--accent2);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(201,168,76,0.3);
+    }
+
+    .btn-outline {
+      border: 1px solid rgba(255,255,255,0.4);
+      color: rgba(255,255,255,0.85);
+    }
+
+    .btn-outline:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* 区切り */
+    .divider {
+      width: 60px;
+      height: 2px;
+      background: var(--accent);
+      margin: 20px auto;
+    }
+
+    /* セクション共通 */
+    section { padding: 100px 24px; }
+
+    .container { max-width: 1000px; margin: 0 auto; }
+
+    .section-title {
+      text-align: center;
+      margin-bottom: 64px;
+    }
+
+    .section-title .en {
+      font-size: 0.78rem;
+      letter-spacing: 0.3em;
+      color: var(--accent);
+      font-family: 'Hiragino Kaku Gothic ProN', sans-serif;
+      margin-bottom: 10px;
+    }
+
+    .section-title h2 {
+      font-size: 2rem;
+      color: var(--primary);
+      letter-spacing: 0.06em;
+    }
+
+    /* コンセプト */
+    #concept {
+      background: var(--light);
+      text-align: center;
+    }
+
+    .concept-text {
+      max-width: 680px;
+      margin: 0 auto;
+      font-size: 1.05rem;
+      color: #3a3a4a;
+      line-height: 2.2;
+    }
+
+    .concept-text strong {
+      color: var(--primary);
+      font-size: 1.15rem;
+    }
+
+    /* サービス */
+    #services { background: var(--white); }
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2px;
+    }
+
+    .service-card {
+      padding: 48px 36px;
+      border: 1px solid #e8e4da;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .service-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 3px;
+      height: 0;
+      background: var(--accent);
+      transition: height 0.4s;
+    }
+
+    .service-card:hover::before { height: 100%; }
+
+    .service-card:hover {
+      background: #faf9f5;
+      transform: translateY(-4px);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.08);
+    }
+
+    .service-num {
+      font-size: 2.5rem;
+      color: var(--accent);
+      opacity: 0.3;
+      font-family: Georgia, serif;
+      line-height: 1;
+      margin-bottom: 12px;
+    }
+
+    .service-card h3 {
+      font-size: 1.15rem;
+      margin-bottom: 14px;
+      letter-spacing: 0.05em;
+    }
+
+    .service-card p {
+      color: var(--gray);
+      font-size: 0.9rem;
+      line-height: 1.9;
+      font-family: 'Hiragino Kaku Gothic ProN', sans-serif;
+    }
+
+    .service-tag {
+      display: inline-block;
+      margin-top: 16px;
+      padding: 3px 12px;
+      background: var(--light);
+      color: var(--accent);
+      border: 1px solid var(--accent2);
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      font-family: 'Hiragino Kaku Gothic ProN', sans-serif;
+    }
+
+    /* 特徴 */
+    #features {
+      background: var(--primary);
+      color: white;
+    }
+
+    #features .section-title h2 { color: white; }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 40px;
+      text-align: center;
+    }
+
+    .feature-item .number {
+      font-size: 3rem;
+      color: var(--accent);
+      font-family: Georgia, serif;
+      line-height: 1;
+      margin-bottom: 12px;
+    }
+
+    .feature-item .label {
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.6);
+      letter-spacing: 0.15em;
+      font-family: 'Hiragino Kaku Gothic ProN', sans-serif;
+      margin-bottom: 8px;
+    }
+
+    .feature-item .desc {
+      font-size: 0.88rem;
+      color: rgba(255,255,255,0.75);
+      font-family: 'Hiragino Kaku Gothic ProN', sans-serif;
+      line-height: 1.8;
+    }
+
+    /* 民泊セクション */
+    #minpaku {
+      background: var(--light);
+    }
+
+    .minpaku-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 64px;
+      align-items: center;
+    }
+
+    .minpaku-visual {
+      background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%);
+      border-radius: 4px;
+      padding: 60px 40px;
+      text-align: center;
+      color: white;
+    }
+
+    .minpaku-visual .big-icon { font-size: 5rem; margin-bottom: 16px; }
+
+    .minpaku-visual h3 {
+      font-size: 1.3rem;
+      color: var(--accent);
+      letter-spacing: 0.1em;
+      margin-bottom: 10px;
+    }
+
+    .minpaku-visual p {
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.65);
+      font-family: 'Hiragino Kaku Gothic ProN', sans-serif;
+      line-height: 1.9;
+    }
+
+    .minpaku-text .en {
+      font-size: 0.78rem;
+      letter-spacing: 0.3em;
+      color: var(--accent);
+      font-family: 'Hiragino Kaku Gothic ProN', sans-serif;
+      margin-bottom: 10px;
+    }
+
+    .minpaku-text h2 {
+      font-size: 1.8rem;
+      margin-bottom: 24px;
+    }
+
+    .minpaku-text p {
+      color: var(--gray);
+      font-size: 0.92rem;
+      font-family: 'Hiragino Kaku Gothic ProN', sans-serif;
+      line-height: 2;
+      margin-bottom: 16px;
+    }
+
+    .minpaku-points {
+      margin-top: 24px;
+      list-style: none;
+    }
+
+    .minpaku-points li {
+      padding: 10px 0;
+      border-bottom: 1px solid #e8e4da;
+      font-size: 0.9rem;
+      font-family: 'Hiragino Kaku Gothic ProN', sans-serif;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .minpaku-points li::before {
+      content: '✓';
+      color: var(--accent);
+      font-weight: bold;
+    }
+
+    /* プロフィール */
+    #about { background: var(--white); }
+
+    .about-inner {
+      display: flex;
+      gap: 64px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+
+    .about-left {
+      flex: 0 0 220px;
+      text-align: center;
+    }
+
+    .about-avatar {
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), #0f3460);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 5rem;
+      margin: 0 auto 20px;
+      border: 3px solid var(--accent);
+    }
+
+    .about-name {
+      font-size: 1.3rem;
+      letter-spacing: 0.08em;
+    }
+
+    .about-name-en {
+      font-size: 0.8rem;
+      color: var(--accent);
+      letter-spacing: 0.2em;
+      margin-top: 4px;
+      font-family: 'Hiragino Kaku Gothic ProN', sans-serif;
+    }
+
+    .about-right { flex: 1; min-width: 280px; }
+
+    .about-right p {
+      color: #3a3a4a;
+      font-size: 0.95rem;
+      font-family: 'Hiragino Kaku Gothic ProN', sans-serif;
+      line-height: 2.1;
+      margin-bottom: 20px;
+    }
+
+    .expertise-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 24px;
+    }
+
+    .exp-tag {
+      padding: 6px 16px;
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      font-size: 0.8rem;
+      letter-spacing: 0.1em;
+      font-family: 'Hiragino Kaku Gothic ProN', sans-serif;
+    }
+
+    /* お問い合わせ */
+    #contact {
+      background: var(--secondary);
+      color: white;
+    }
+
+    #contact .section-title h2 { color: white; }
+
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 64px;
+      align-items: start;
+    }
+
+    .contact-info h3 {
+      font-size: 1.1rem;
+      color: var(--accent);
+      margin-bottom: 24px;
+      letter-spacing: 0.1em;
+    }
+
+    .contact-info p {
+      font-size: 0.9rem;
+      color: rgba(255,255,255,0.7);
+      font-family: 'Hiragino Kaku Gothic ProN', sans-serif;
+      line-height: 2;
+      margin-bottom: 32px;
+    }
+
+    .contact-detail {
+      margin-bottom: 16px;
+    }
+
+    .contact-detail .label {
+      font-size: 0.75rem;
+      color: var(--accent);
+      letter-spacing: 0.15em;
+      font-family: 'Hiragino Kaku Gothic ProN', sans-serif;
+      margin-bottom: 4px;
+    }
+
+    .contact-detail .value {
+      font-size: 0.95rem;
+      color: white;
+      font-family: 'Hiragino Kaku Gothic ProN', sans-serif;
+    }
+
+    form input, form textarea {
+      width: 100%;
+      padding: 14px 18px;
+      border: 1px solid rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.06);
+      color: white;
+      font-size: 0.9rem;
+      font-family: 'Hiragino Kaku Gothic ProN', sans-serif;
+      margin-bottom: 14px;
+      outline: none;
+      border-radius: 2px;
+      transition: border-color 0.3s;
+    }
+
+    form input::placeholder, form textarea::placeholder {
+      color: rgba(255,255,255,0.4);
+    }
+
+    form input:focus, form textarea:focus {
+      border-color: var(--accent);
+    }
+
+    form textarea { min-height: 140px; resize: vertical; }
+
+    form button {
+      width: 100%;
+      padding: 16px;
+      background: var(--accent);
+      color: var(--primary);
+      border: none;
+      font-size: 0.9rem;
+      letter-spacing: 0.15em;
+      font-weight: bold;
+      cursor: pointer;
+      font-family: 'Hiragino Kaku Gothic ProN', sans-serif;
+      transition: background 0.3s, transform 0.2s;
+    }
+
+    form button:hover {
+      background: var(--accent2);
+      transform: translateY(-1px);
+    }
+
+    /* フッター */
+    footer {
+      background: var(--primary);
+      color: rgba(255,255,255,0.4);
+      text-align: center;
+      padding: 32px;
+      font-size: 0.8rem;
+      font-family: 'Hiragino Kaku Gothic ProN', sans-serif;
+      letter-spacing: 0.1em;
+    }
+
+    footer .footer-logo {
+      font-size: 1.2rem;
+      color: var(--accent);
+      font-weight: bold;
+      margin-bottom: 8px;
+      letter-spacing: 0.15em;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    /* レスポンシブ */
+    @media (max-width: 768px) {
+      nav { padding: 14px 20px; }
+      nav ul { gap: 16px; }
+      nav ul a { font-size: 0.78rem; }
+      .minpaku-inner { grid-template-columns: 1fr; gap: 40px; }
+      .contact-grid { grid-template-columns: 1fr; gap: 40px; }
+      .about-left { flex: none; width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ナビゲーション -->
+  <nav>
+    <a class="logo" href="#hero">
+      Tujistyle
+      <span>CONSULTING &amp; HOSPITALITY</span>
+    </a>
+    <ul>
+      <li><a href="#services">サービス</a></li>
+      <li><a href="#minpaku">民泊事業</a></li>
+      <li><a href="#about">代表紹介</a></li>
+      <li><a href="#contact">お問い合わせ</a></li>
+    </ul>
+  </nav>
+
+  <!-- ヒーロー -->
+  <section id="hero">
+    <div class="hero-content">
+      <p class="hero-en">BUSINESS CONSULTING &amp; HOSPITALITY</p>
+      <h1>事業の未来を、<br>ともに描く。</h1>
+      <p class="brand">Tujistyle</p>
+      <p class="tagline">
+        事業計画の策定から経営管理の改善、<br>
+        そして民泊運営まで。<br>
+        オーナーの想いを形にする、<br>
+        トータルサポートを提供します。
+      </p>
+      <a href="#services" class="btn btn-gold">サービスを見る</a>
+      <a href="#contact" class="btn btn-outline">無料相談はこちら</a>
+    </div>
+  </section>
+
+  <!-- コンセプト -->
+  <section id="concept">
+    <div class="container">
+      <div class="section-title">
+        <p class="en">CONCEPT</p>
+        <h2>Tujistyleの想い</h2>
+        <div class="divider"></div>
+      </div>
+      <p class="concept-text">
+        <strong>「経営の悩みを、ひとりで抱えないでほしい。」</strong><br><br>
+        Tujistyleは、個人事業主・中小企業のオーナーが直面する
+        事業計画の不安や経営管理の課題に、伴走者として向き合います。<br><br>
+        数字だけでなく、現場の実態と人の想いを大切にしながら、
+        持続可能な事業モデルの構築をご支援します。
+        また、民泊運営においては、オーナー様の物件が最大限の価値を生み出せるよう、
+        開業から日常運営まで一貫してサポートします。
+      </p>
+    </div>
+  </section>
+
+  <!-- サービス -->
+  <section id="services">
+    <div class="container">
+      <div class="section-title">
+        <p class="en">SERVICES</p>
+        <h2>サービス内容</h2>
+        <div class="divider"></div>
+      </div>
+      <div class="services-grid">
+        <div class="service-card">
+          <div class="service-num">01</div>
+          <h3>事業計画策定支援</h3>
+          <p>創業・新規事業・資金調達に向けた事業計画書の作成をサポート。市場分析から収支計画まで、説得力のある計画書を一緒に作り上げます。</p>
+          <span class="service-tag">BUSINESS PLAN</span>
+        </div>
+        <div class="service-card">
+          <div class="service-num">02</div>
+          <h3>経営管理・改善コンサルティング</h3>
+          <p>KPI設計・財務分析・業務フロー最適化など、日々の経営管理を仕組み化。現状の課題を可視化し、継続的な改善をご支援します。</p>
+          <span class="service-tag">MANAGEMENT</span>
+        </div>
+        <div class="service-card">
+          <div class="service-num">03</div>
+          <h3>補助金・融資サポート</h3>
+          <p>各種補助金・助成金の申請支援や金融機関向け資料の作成をサポート。必要な資金調達をスムーズに進められるよう伴走します。</p>
+          <span class="service-tag">FUNDING</span>
+        </div>
+        <div class="service-card">
+          <div class="service-num">04</div>
+          <h3>民泊開業サポート</h3>
+          <p>旅館業法・住宅宿泊事業法に基づく申請手続きから、インテリア・価格設定・OTA登録まで、開業に向けた全工程をサポートします。</p>
+          <span class="service-tag">MINPAKU LAUNCH</span>
+        </div>
+        <div class="service-card">
+          <div class="service-num">05</div>
+          <h3>民泊運営代行・最適化</h3>
+          <p>予約管理・ゲスト対応・清掃手配・レビュー管理など、民泊の日常運営を代行。稼働率と評価を高め、収益最大化を目指します。</p>
+          <span class="service-tag">OPERATION</span>
+        </div>
+        <div class="service-card">
+          <div class="service-num">06</div>
+          <h3>スポットコンサルティング</h3>
+          <p>「この件だけ相談したい」というニーズにも対応。単発での経営相談・事業レビュー・意思決定サポートを柔軟にご提供します。</p>
+          <span class="service-tag">SPOT</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 実績・特徴 -->
+  <section id="features">
+    <div class="container">
+      <div class="section-title">
+        <p class="en" style="color: var(--accent);">STRENGTH</p>
+        <h2>Tujistyleの強み</h2>
+        <div class="divider"></div>
+      </div>
+      <div class="features-grid">
+        <div class="feature-item">
+          <div class="number">一貫</div>
+          <div class="label">トータルサポート</div>
+          <div class="desc">計画策定から運営実務まで、一気通貫でご対応。担当が変わらず安心して任せられます。</div>
+        </div>
+        <div class="feature-item">
+          <div class="number">現場</div>
+          <div class="label">実務に根ざした提案</div>
+          <div class="desc">理論だけでなく、実際の民泊運営・経営管理の経験に基づいた、実践的な提案を行います。</div>
+        </div>
+        <div class="feature-item">
+          <div class="number">伴走</div>
+          <div class="label">継続的なサポート</div>
+          <div class="desc">単発で終わらず、定期的な振り返りと改善提案で、長期的な成果を一緒に追います。</div>
+        </div>
+        <div class="feature-item">
+          <div class="number">柔軟</div>
+          <div class="label">オーダーメイド対応</div>
+          <div class="desc">規模・業種・フェーズに合わせた、あなたの事業に最適なプランをご提案します。</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 民泊事業 -->
+  <section id="minpaku">
+    <div class="container">
+      <div class="section-title">
+        <p class="en">HOSPITALITY BUSINESS</p>
+        <h2>民泊運営事業</h2>
+        <div class="divider"></div>
+      </div>
+      <div class="minpaku-inner">
+        <div class="minpaku-visual">
+          <div class="big-icon">🏡</div>
+          <h3>Tujistyle Stay</h3>
+          <p>
+            旅行者に「もう一度来たい」と<br>思ってもらえる空間と体験を。<br><br>
+            地域の魅力を活かしながら、<br>快適で心温まる滞在をご提供します。
+          </p>
+        </div>
+        <div class="minpaku-text">
+          <p class="en">MINPAKU OPERATION</p>
+          <h2>物件の価値を最大化する<br>民泊運営</h2>
+          <p>
+            遊休物件・空き家・投資用物件を活用した民泊運営を行っています。
+            オーナー様の物件を預かり、収益化から日常運営まで一括してお任せいただけます。
+          </p>
+          <p>
+            インバウンド需要の高まりを背景に、適切な運営・価格戦略・ゲスト体験の最適化で、
+            安定した収益と高評価を両立します。
+          </p>
+          <ul class="minpaku-points">
+            <li>開業申請・許可取得の代行</li>
+            <li>インテリア・備品コーディネート</li>
+            <li>Airbnb・じゃらん等OTA掲載・最適化</li>
+            <li>予約管理・ゲスト対応（多言語対応）</li>
+            <li>清掃・メンテナンス手配</li>
+            <li>収益レポート・改善提案</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 代表紹介 -->
+  <section id="about">
+    <div class="container">
+      <div class="section-title">
+        <p class="en">ABOUT</p>
+        <h2>代表紹介</h2>
+        <div class="divider"></div>
+      </div>
+      <div class="about-inner">
+        <div class="about-left">
+          <div class="about-avatar">👤</div>
+          <div class="about-name">代表者名</div>
+          <div class="about-name-en">Tujistyle / Representative</div>
+        </div>
+        <div class="about-right">
+          <p>
+            経営コンサルティングと民泊運営の両面から、
+            個人事業主・中小企業オーナーの事業成長を支援しています。
+          </p>
+          <p>
+            これまで複数の事業立ち上げ・経営改善プロジェクトに携わる中で、
+            「戦略と実行の両方ができる支援者が必要だ」という課題を肌で感じ、
+            Tujistyleを設立しました。
+          </p>
+          <p>
+            民泊事業においては、自らオーナーとして物件を運営した経験を持ち、
+            現場感覚に基づいた実践的なサポートを提供しています。
+            オーナー様の想いと数字を両立させる、誠実なパートナーを目指しています。
+          </p>
+          <div class="expertise-list">
+            <span class="exp-tag">事業計画策定</span>
+            <span class="exp-tag">財務・収支分析</span>
+            <span class="exp-tag">補助金申請</span>
+            <span class="exp-tag">民泊運営</span>
+            <span class="exp-tag">OTA最適化</span>
+            <span class="exp-tag">経営改善</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- お問い合わせ -->
+  <section id="contact">
+    <div class="container">
+      <div class="section-title">
+        <p class="en">CONTACT</p>
+        <h2>お問い合わせ・無料相談</h2>
+        <div class="divider"></div>
+      </div>
+      <div class="contact-grid">
+        <div class="contact-info">
+          <h3>まずはお気軽にご相談ください</h3>
+          <p>
+            事業計画の相談、民泊運営のご依頼、
+            料金・サービスへのご質問など、
+            どんなことでもお気軽にお問い合わせください。<br><br>
+            初回相談は無料で承っております。
+            2営業日以内にご返信いたします。
+          </p>
+          <div class="contact-detail">
+            <div class="label">EMAIL</div>
+            <div class="value">info@tujistyle.com</div>
+          </div>
+          <div class="contact-detail">
+            <div class="label">RESPONSE</div>
+            <div class="value">2営業日以内にご返信</div>
+          </div>
+          <div class="contact-detail">
+            <div class="label">AREA</div>
+            <div class="value">全国対応（オンライン相談可）</div>
+          </div>
+          <div class="contact-detail">
+            <div class="label">STATUS</div>
+            <div class="value">相談受付中</div>
+          </div>
+        </div>
+        <form onsubmit="handleSubmit(event)">
+          <input type="text" placeholder="お名前 *" required>
+          <input type="email" placeholder="メールアドレス *" required>
+          <input type="text" placeholder="会社名・屋号（任意）">
+          <input type="text" placeholder="お問い合わせ種別（例：経営相談 / 民泊運営）">
+          <textarea placeholder="お問い合わせ内容をご記入ください *" required></textarea>
+          <button type="submit">無料相談を申し込む</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-logo">Tujistyle</div>
+    <p>&copy; 2026 Tujistyle. All rights reserved.</p>
+  </footer>
+
+  <script>
+    // スクロールでナビをアクティブに
+    const sections = document.querySelectorAll('section[id]');
+    const navLinks = document.querySelectorAll('nav ul a');
+
+    window.addEventListener('scroll', () => {
+      let current = '';
+      sections.forEach(s => {
+        if (window.scrollY >= s.offsetTop - 120) current = s.getAttribute('id');
+      });
+      navLinks.forEach(link => {
+        const isActive = link.getAttribute('href') === `#${current}`;
+        link.style.color = isActive ? '#c9a84c' : '';
+      });
+    });
+
+    // フォーム送信
+    function handleSubmit(e) {
+      e.preventDefault();
+      const btn = e.target.querySelector('button');
+      btn.textContent = '送信完了しました。ありがとうございます。';
+      btn.style.background = '#27ae60';
+      btn.style.color = 'white';
+      btn.disabled = true;
+    }
+
+    // フェードインアニメーション
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = '1';
+          entry.target.style.transform = 'translateY(0)';
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.service-card, .feature-item, .work-card').forEach(el => {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(24px)';
+      el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+      observer.observe(el);
+    });
+  </script>
+</body>
+</html>
