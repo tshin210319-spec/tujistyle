@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>真理子のペーパー卒業</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    :root {
+      --yellow: #f5c200; --red: #e74c3c; --blue: #2980b9; --green: #27ae60;
+      --dark: #12122a; --card: #1e1e3a; --card2: #252545;
+      --text: #ffffff; --sub: rgba(255,255,255,0.6);
+    }
+    body { font-family: 'Hiragino Kaku Gothic ProN','Meiryo',sans-serif; background: var(--dark); color: var(--text); min-height: 100vh; max-width: 480px; margin: 0 auto; overflow-x: hidden; }
+    .screen { display: none; min-height: 100vh; }
+    .screen.active { display: flex; flex-direction: column; }
+
+    /* ===== TITLE ===== */
+    #titleScreen { background: linear-gradient(160deg,#12122a,#2d1b69,#0f3460); align-items: center; justify-content: center; padding: 40px 24px; text-align: center; position: relative; overflow: hidden; }
+    .t-stars { position: absolute; inset: 0; pointer-events: none; }
+    .tstar { position: absolute; background: white; border-radius: 50%; animation: twink 2s ease-in-out infinite alternate; }
+    @keyframes twink { from { opacity: .2; } to { opacity: 1; } }
+    .t-chara { font-size: 5rem; margin-bottom: 12px; animation: bounce 2s ease-in-out infinite; }
+    @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+    .t-title { font-size: clamp(1.6rem,7vw,2.4rem); font-weight: 900; background: linear-gradient(135deg,#f5c200,#ff6b35); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1.2; margin-bottom: 8px; }
+    .t-sub { color: var(--sub); font-size: .9rem; margin-bottom: 32px; letter-spacing: .1em; }
+    .t-badge-row { display: flex; gap: 12px; justify-content: center; margin-bottom: 40px; }
+    .t-badge { font-size: 2rem; animation: bounce 2s ease-in-out infinite; }
+    .t-badge:nth-child(2) { animation-delay: .3s; }
+    .t-badge:nth-child(3) { animation-delay: .6s; }
+    .t-badge:nth-child(4) { animation-delay: .9s; }
+    .btn-primary { padding: 18px 56px; font-size: 1.2rem; font-weight: bold; background: linear-gradient(135deg,#f5c200,#ff6b35); color: #12122a; border: none; border-radius: 50px; cursor: pointer; font-family: inherit; box-shadow: 0 8px 28px rgba(245,194,0,.4); transition: transform .15s; }
+    .btn-primary:active { transform: scale(.96); }
+    .btn-secondary { margin-top: 16px; padding: 12px 32px; font-size: .9rem; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.2); color: var(--text); border-radius: 30px; cursor: pointer; font-family: inherit; }
+
+    /* ===== MAP ===== */
+    #mapScreen { background: linear-gradient(180deg,#12122a,#1a1a3a); padding: 0 0 40px; }
+    .map-header { padding: 20px 20px 12px; display: flex; align-items: center; gap: 12px; background: rgba(0,0,0,.3); }
+    .map-header h2 { font-size: 1.1rem; color: var(--yellow); font-weight: bold; }
+    .map-progress-bar { height: 6px; background: rgba(255,255,255,.1); border-radius: 3px; flex: 1; overflow: hidden; }
+    .map-progress-fill { height: 100%; background: linear-gradient(90deg,#f5c200,#27ae60); border-radius: 3px; transition: width .5s; }
+    .map-path { padding: 20px; display: flex; flex-direction: column; gap: 0; }
+    .map-row { display: flex; justify-content: space-around; position: relative; }
+    .map-row::before { content: ''; position: absolute; top: 50%; left: 10%; right: 10%; height: 3px; background: rgba(255,255,255,.08); z-index: 0; }
+    .day-node { width: 72px; height: 72px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; position: relative; z-index: 1; transition: transform .2s; border: 3px solid transparent; }
+    .day-node:active { transform: scale(.94); }
+    .day-node.done { background: linear-gradient(135deg,#f5c200,#27ae60); border-color: #f5c200; box-shadow: 0 4px 16px rgba(245,194,0,.4); }
+    .day-node.available { background: var(--card2); border-color: rgba(245,194,0,.6); box-shadow: 0 0 16px rgba(245,194,0,.3); animation: nodePulse 2s ease-in-out infinite; }
+    @keyframes nodePulse { 0%,100% { box-shadow: 0 0 16px rgba(245,194,0,.3); } 50% { box-shadow: 0 0 24px rgba(245,194,0,.6); } }
+    .day-node.locked { background: rgba(255,255,255,.04); border-color: rgba(255,255,255,.1); filter: grayscale(1) brightness(.5); cursor: default; }
+    .day-node.special { border-color: #e74c3c; }
+    .day-node.special.available { box-shadow: 0 0 16px rgba(231,76,60,.4); animation: none; background: linear-gradient(135deg,#3a0a0a,#6b1111); }
+    .day-node.special.done { background: linear-gradient(135deg,#c0392b,#e74c3c); }
+    .node-icon { font-size: 1.5rem; }
+    .node-num { font-size: .6rem; color: rgba(255,255,255,.7); margin-top: 2px; }
+    .node-star { position: absolute; top: -4px; right: -4px; font-size: .8rem; }
+    .map-connector { height: 24px; display: flex; align-items: center; justify-content: center; }
+    .connector-line { width: 3px; height: 100%; background: rgba(255,255,255,.08); border-radius: 2px; }
+
+    /* ===== LESSON ===== */
+    #lessonScreen { background: var(--dark); }
+    .lesson-header { padding: 16px 20px; display: flex; align-items: center; gap: 12px; background: rgba(0,0,0,.3); position: sticky; top: 0; z-index: 10; }
+    .btn-back { background: none; border: none; color: var(--yellow); font-size: 1.4rem; cursor: pointer; padding: 4px; }
+    .lesson-header-title { font-size: 1rem; font-weight: bold; flex: 1; }
+    .lesson-day-badge { padding: 4px 12px; background: rgba(245,194,0,.15); border: 1px solid rgba(245,194,0,.3); border-radius: 12px; color: var(--yellow); font-size: .75rem; white-space: nowrap; }
+    .lesson-body { padding: 20px; flex: 1; overflow-y: auto; }
+    /* Character bubble */
+    .char-section { display: flex; align-items: flex-end; gap: 12px; margin-bottom: 24px; }
+    .char-avatar { width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.2rem; flex-shrink: 0; border: 3px solid; }
+    .bubble { background: var(--card); border-radius: 16px 16px 16px 4px; padding: 14px 16px; flex: 1; font-size: .9rem; line-height: 1.7; position: relative; }
+    .bubble::before { content: ''; position: absolute; left: -8px; bottom: 12px; border: 8px solid transparent; border-right-color: var(--card); }
+    /* Content sections */
+    .section-card { background: var(--card); border-radius: 16px; padding: 18px; margin-bottom: 14px; border: 1px solid rgba(255,255,255,.06); }
+    .section-card.warn { border-color: rgba(231,76,60,.3); background: rgba(231,76,60,.07); }
+    .section-card.tip-card { border-color: rgba(245,194,0,.3); background: rgba(245,194,0,.07); }
+    .section-card.info { border-color: rgba(41,128,185,.3); background: rgba(41,128,185,.07); }
+    .sc-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .sc-icon { font-size: 1.6rem; }
+    .sc-title { font-size: 1rem; font-weight: bold; }
+    .sc-body { font-size: .88rem; line-height: 1.8; color: rgba(255,255,255,.85); }
+    .sc-tip { margin-top: 10px; padding: 8px 12px; background: rgba(245,194,0,.1); border-left: 3px solid var(--yellow); border-radius: 0 8px 8px 0; font-size: .82rem; color: var(--yellow); }
+    /* Sign display */
+    .sign-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; }
+    .sign-item { background: var(--card2); border-radius: 12px; padding: 12px 10px; text-align: center; }
+    .sign-shape { width: 56px; height: 56px; margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; font-size: .75rem; font-weight: bold; }
+    .sign-prohibit { border-radius: 50%; background: white; border: 6px solid #e74c3c; color: #e74c3c; font-size: 1rem; position: relative; }
+    .sign-noenrty { border-radius: 50%; background: white; border: 6px solid #e74c3c; position: relative; overflow: hidden; }
+    .sign-noenrty::after { content: ''; position: absolute; width: 75%; height: 10px; background: #e74c3c; border-radius: 2px; top: 50%; left: 50%; transform: translate(-50%,-50%); }
+    .sign-stop { clip-path: polygon(30% 0%,70% 0%,100% 30%,100% 70%,70% 100%,30% 100%,0% 70%,0% 30%); background: #e74c3c; color: white; font-size: .7rem; text-align: center; }
+    .sign-warning { clip-path: polygon(50% 0%,100% 100%,0% 100%); background: #f5e642; border: none; }
+    .sign-warning-inner { margin-top: 28px; font-size: .6rem; color: #333; }
+    .sign-mandatory { border-radius: 50%; background: #1565c0; color: white; font-size: .85rem; }
+    .sign-speed { border-radius: 50%; background: white; border: 6px solid #e74c3c; color: #111; font-size: 1rem; font-weight: 900; }
+    .sign-info-sign { background: #1565c0; color: white; border-radius: 6px; font-size: .7rem; }
+    .sign-priority { border-radius: 0; background: #f5e642; transform: rotate(45deg); width: 44px; height: 44px; }
+    .sign-name-label { font-size: .75rem; color: rgba(255,255,255,.7); font-weight: bold; }
+    .sign-desc-label { font-size: .68rem; color: var(--sub); margin-top: 2px; line-height: 1.4; }
+    /* Steps */
+    .steps-list { list-style: none; counter-reset: step; }
+    .steps-list li { counter-increment: step; display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,.06); font-size: .88rem; line-height: 1.7; }
+    .steps-list li:last-child { border-bottom: none; }
+    .steps-list li::before { content: counter(step); min-width: 26px; height: 26px; border-radius: 50%; background: var(--yellow); color: #12122a; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: .8rem; flex-shrink: 0; margin-top: 1px; }
+    /* Quiz */
+    .quiz-section { margin-top: 8px; }
+    .quiz-title { text-align: center; font-size: 1rem; color: var(--yellow); font-weight: bold; margin-bottom: 20px; padding: 12px; background: rgba(245,194,0,.08); border-radius: 12px; }
+    .quiz-card { background: var(--card); border-radius: 16px; padding: 20px; margin-bottom: 16px; }
+    .quiz-q { font-size: .95rem; font-weight: bold; margin-bottom: 16px; line-height: 1.6; }
+    .quiz-num { color: var(--yellow); font-size: .8rem; margin-bottom: 6px; }
+    .quiz-choices { display: flex; flex-direction: column; gap: 10px; }
+    .choice-btn { padding: 14px 16px; background: var(--card2); border: 2px solid rgba(255,255,255,.1); border-radius: 12px; color: var(--text); font-size: .88rem; font-family: inherit; cursor: pointer; text-align: left; transition: all .15s; line-height: 1.4; }
+    .choice-btn:active { transform: scale(.98); }
+    .choice-btn.correct { background: rgba(39,174,96,.2); border-color: #27ae60; color: #5deb8a; }
+    .choice-btn.wrong { background: rgba(231,76,60,.2); border-color: #e74c3c; color: #ff8070; }
+    .choice-btn.disabled { pointer-events: none; opacity: .5; }
+    .quiz-explain { margin-top: 12px; padding: 10px 14px; background: rgba(255,255,255,.05); border-radius: 10px; font-size: .82rem; color: var(--sub); line-height: 1.7; display: none; }
+    .quiz-explain.show { display: block; }
+    .quiz-next-btn { width: 100%; margin-top: 12px; padding: 14px; background: rgba(245,194,0,.15); border: 1px solid rgba(245,194,0,.3); border-radius: 12px; color: var(--yellow); font-size: .9rem; font-family: inherit; cursor: pointer; display: none; }
+    .quiz-next-btn.show { display: block; }
+    /* Complete */
+    .day-complete { text-align: center; padding: 32px 20px; }
+    .complete-emoji { font-size: 4rem; animation: bounce 1s ease-in-out infinite; margin-bottom: 12px; }
+    .complete-title { font-size: 1.6rem; font-weight: bold; color: var(--yellow); margin-bottom: 8px; }
+    .complete-sub { color: var(--sub); font-size: .9rem; margin-bottom: 24px; line-height: 1.7; }
+    .score-display { display: flex; justify-content: center; gap: 6px; margin-bottom: 28px; font-size: 2rem; }
+    /* Confetti */
+    .confetti-wrap { position: fixed; inset: 0; pointer-events: none; z-index: 100; overflow: hidden; }
+    .cp { position: absolute; top: -20px; border-radius: 3px; animation: fall linear forwards; }
+    @keyframes fall { to { transform: translateY(110vh) rotate(720deg); opacity: 0; } }
+
+    /* ===== GRADUATION ===== */
+    #graduationScreen { background: linear-gradient(160deg,#12122a,#2d1b69); align-items: center; justify-content: center; padding: 40px 24px; text-align: center; }
+    .grad-title { font-size: clamp(1.4rem,6vw,2.2rem); font-weight: 900; background: linear-gradient(135deg,#f5c200,#ff6b35,#e74c3c); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin: 20px 0 12px; }
+    .grad-cert { background: rgba(255,255,255,.05); border: 2px solid rgba(245,194,0,.3); border-radius: 20px; padding: 28px 24px; margin: 16px 0 28px; }
+    .cert-label { font-size: .8rem; letter-spacing: .2em; color: var(--yellow); margin-bottom: 16px; }
+    .cert-name { font-size: 1.6rem; font-weight: bold; margin-bottom: 8px; }
+    .cert-text { font-size: .85rem; color: var(--sub); line-height: 1.8; }
+    .chars-row { font-size: 2.5rem; display: flex; justify-content: center; gap: 10px; margin-bottom: 16px; }
+    .chars-row span { animation: bounce 1.5s ease-in-out infinite; }
+    .chars-row span:nth-child(2) { animation-delay: .3s; }
+    .chars-row span:nth-child(3) { animation-delay: .6s; }
+    .chars-row span:nth-child(4) { animation-delay: .9s; }
+    .chars-row span:nth-child(5) { animation-delay: 1.2s; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,.2); border-radius: 2px; }
+  </style>
+</head>
+<body>
+
+<div class="confetti-wrap" id="confettiWrap"></div>
+
+<!-- ===== TITLE ===== -->
+<div class="screen active" id="titleScreen">
+  <div class="t-stars" id="titleStars"></div>
+  <div class="t-chara">⚡</div>
+  <h1 class="t-title">真理子の<br>ペーパー卒業</h1>
+  <p class="t-sub">14日間で運転マスター！</p>
+  <div class="t-badge-row">
+    <div class="t-badge">⚡</div>
+    <div class="t-badge">🦊</div>
+    <div class="t-badge">💤</div>
+    <div class="t-badge">🌊</div>
+    <div class="t-badge">🐲</div>
+  </div>
+  <button class="btn-primary" onclick="showMap()">はじめる！</button>
+  <button class="btn-secondary" onclick="showMap()">コースマップをみる</button>
+</div>
+
+<!-- ===== MAP ===== -->
+<div class="screen" id="mapScreen">
+  <div class="map-header">
+    <h2>📍 コースマップ</h2>
+    <div class="map-progress-bar"><div class="map-progress-fill" id="mapProgressFill" style="width:0%"></div></div>
+    <span id="mapProgressText" style="font-size:.8rem;color:var(--yellow);white-space:nowrap">0/14</span>
+  </div>
+  <div class="map-path" id="mapPath"></div>
+</div>
+
+<!-- ===== LESSON ===== -->
+<div class="screen" id="lessonScreen">
+  <div class="lesson-header">
+    <button class="btn-back" onclick="showMap()">←</button>
+    <div class="lesson-header-title" id="lessonHeaderTitle">Day 1</div>
+    <div class="lesson-day-badge" id="lessonDayBadge">Day 1</div>
+  </div>
+  <div class="lesson-body" id="lessonBody"></div>
+</div>
+
+<!-- ===== GRADUATION ===== -->
+<div class="screen" id="graduationScreen">
+  <div class="chars-row">
+    <span>⚡</span><span>🦊</span><span>💤</span><span>🌊</span><span>🐲</span>
+  </div>
+  <h1 class="grad-title">🎓 卒業おめでとう！ 🎓</h1>
+  <div class="grad-cert">
+    <div class="cert-label">✨ 卒業証明書 ✨</div>
+    <div class="cert-name">真理子</div>
+    <div class="cert-text">14日間のペーパードライバー講座を<br>見事に修了しました。<br><br>安全で自信ある運転を応援しています！<br>ピカチュウたちより 💛</div>
+  </div>
+  <button class="btn-primary" onclick="showMap()">もう一度みる</button>
+</div>
+
+<script>
+// ==============================
+//  キャラクターデータ
+// ==============================
+const CHARS = {
+  pikachu: { name:'ピカチュウ', emoji:'⚡', color:'#f5c200', bg:'rgba(245,194,0,.12)' },
+  eevee:   { name:'イーブイ',   emoji:'🦊', color:'#c07840', bg:'rgba(192,120,64,.12)' },
+  snorlax: { name:'カビゴン',   emoji:'💤', color:'#8899aa', bg:'rgba(136,153,170,.12)' },
+  lapras:  { name:'ラプラス',   emoji:'🌊', color:'#4fc3f7', bg:'rgba(79,195,247,.12)' },
+  dragonite:{ name:'カイリュー',emoji:'🐲', color:'#66bb6a', bg:'rgba(102,187,106,.12)' },
+};
+
+// ==============================
+//  道路標識HTML生成
+// ==============================
+function signGrid(signs) {
+  return `<div class="sign-grid">${signs.map(s=>`
+    <div class="sign-item">
+      <div class="sign-shape ${s.cls}">${s.inner||''}</div>
+      <div class="sign-name-label">${s.name}</div>
+      <div class="sign-desc-label">${s.desc}</div>
+    </div>`).join('')}</div>`;
+}
+
+// ==============================
+//  コースデータ (14日)
+// ==============================
+const COURSE = [
+// --- Day 1 ---
+{ day:1, title:'道路標識①\n禁止・規制', icon:'🚫', char:'pikachu', special:false,
+  intro:'ピカチュウだよ！真理子、一緒にがんばろうね！\nまず道路標識から。禁止・規制標識は赤い色が多いのが特徴だよ！',
+  sections:[
+    { type:'text', icon:'🔴', title:'禁止標識とは？',
+      body:'赤い色の標識は「禁止」や「制限」を意味するものが多いです。必ず守る義務があります。違反すると交通違反になるので注意しましょう。' },
+    { type:'signs', title:'代表的な禁止・規制標識', signs:[
+      { cls:'sign-noenrty',     name:'進入禁止', desc:'赤丸＋白横棒。一方通行の出口などに設置。この道には入れない！' },
+      { cls:'sign-stop',        inner:'止まれ', name:'一時停止', desc:'赤い八角形。必ず停止線の手前でタイヤが止まるまで停まること！' },
+      { cls:'sign-prohibit',    inner:'駐', name:'駐車禁止', desc:'赤丸に斜め線＋P。この場所には駐車できません。' },
+      { cls:'sign-speed',       inner:'40', name:'速度制限', desc:'赤丸の中の数字が上限速度（km/h）。必ずこれ以下で走ること！' },
+    ]},
+    { type:'step', title:'一時停止の正しいやり方', steps:[
+      'ブレーキを踏んで停止線の手前で完全に止まる（タイヤが止まるまで）',
+      '左右を目視で確認。ミラーだけでなく直接目で見る',
+      '安全確認ができてから、ゆっくり発進する',
+    ]},
+    { type:'warn', body:'⚠️ 「ちょっとだけ止まった」はNG！タイヤが止まるまで完全停止しないと違反になります。一時停止違反は事故の原因になりやすいので必ず守りましょう。' },
+  ],
+  quiz:[
+    { q:'赤い丸に白い横棒の標識の意味は？', choices:['進入禁止','一時停止','速度制限50km/h','駐車禁止'], answer:0, explain:'赤い丸に白い横棒＝「進入禁止」です。一方通行の出口などに設置されており、この方向からは入れません。' },
+    { q:'一時停止の標識がある場所での正しい行動は？', choices:['ゆっくり走れば停まらなくてもOK','停止線の手前でタイヤが止まるまで完全停止','徐行すれば大丈夫','前の車が行ったら止まらなくてOK'], answer:1, explain:'一時停止は「タイヤが完全に止まるまで停止」が義務です。少しでもタイヤが動いていると違反になります。' },
+    { q:'速度制限の標識の赤い丸の中の数字は何を表す？', choices:['最低速度（km/h）','推奨速度（km/h）','最高速度（km/h）','危険度レベル'], answer:2, explain:'速度制限標識の数字はその道路での最高速度（km/h）を示します。この速度を超えて走ることは違反です。' },
+    { q:'一般道路で速度制限の標識がない場合、法定速度は？', choices:['40km/h','50km/h','60km/h','80km/h'], answer:2, explain:'一般道路の法定最高速度は60km/hです。ただし住宅街など標識がある場合はそちらが優先されます。' },
+  ]
+},
+
+// --- Day 2 ---
+{ day:2, title:'道路標識②\n指示・案内', icon:'🔵', char:'eevee', special:false,
+  intro:'イーブイだよ！道路標識の2日目は青い色の「指示標識」と「案内標識」を学ぶよ。青い標識は「ここで何かしなさい」「この方向へ行ける」というサインが多いよ！',
+  sections:[
+    { type:'text', icon:'🔵', title:'指示標識とは？',
+      body:'青い標識は「指示」を表すことが多く、従わなければならない義務があります。白い標識は「案内・情報」を提供するものが多いです。' },
+    { type:'signs', title:'よく見る指示・案内標識', signs:[
+      { cls:'sign-mandatory', inner:'→', name:'一方通行', desc:'青い四角に白い矢印。この方向にしか進めない道路。' },
+      { cls:'sign-mandatory', inner:'⊙', name:'横断歩道あり', desc:'歩行者が渡る場所。必ず歩行者優先！ゆっくり通過。' },
+      { cls:'sign-info-sign', inner:'P', name:'駐車可', desc:'青い四角にP。この場所には駐車できます。' },
+      { cls:'sign-info-sign', inner:'徐行', name:'徐行', desc:'ただちに停止できる速度（目安10km/h以下）まで落とすこと。' },
+    ]},
+    { type:'tip', icon:'⚠️', title:'一方通行を間違えた！どうする？',
+      body:'もし一方通行に逆走してしまったら、パニックにならず安全な場所に停車。ハザードランプを点灯させてから、バックで元の道に戻りましょう。',
+      tip:'一方通行の道は「一方通行→」の青い標識と「進入禁止」の赤い標識がセットで設置されていることが多いよ！' },
+    { type:'text', icon:'🚶', title:'横断歩道では必ず歩行者優先！',
+      body:'横断歩道に歩行者がいたら、必ず停止して渡らせましょう。渡ろうとしている人（待っている人も含む）がいる場合も同様です。違反すると「横断歩行者等妨害等」となり罰則があります。' },
+  ],
+  quiz:[
+    { q:'青い四角に白い矢印の標識の意味は？', choices:['進入禁止','一方通行','駐車禁止','速度制限'], answer:1, explain:'青い四角に白い矢印＝「一方通行」。この方向にしか進めない道路です。逆走すると重大な事故につながります。' },
+    { q:'横断歩道に歩行者が渡ろうとしているとき、正しい行動は？', choices:['歩行者が先に渡った後に通過','クラクションを鳴らして急かす','必ず停止して歩行者を先に渡らせる','そのままゆっくり通過'], answer:2, explain:'横断歩道では歩行者が最優先です。渡ろうとしている人（待っている人も含む）がいる場合は必ず停止して先に渡らせましょう。' },
+    { q:'「徐行」とはどのくらいの速度？', choices:['20km/h以下','時速15km/h以下','ただちに停止できる速度（約10km/h以下）','30km/h以下'], answer:2, explain:'徐行とは「すぐに止まれる速度」で走ること。目安は10km/h以下とされています。ブレーキを踏んですぐ止まれる速度が目安です。' },
+  ]
+},
+
+// --- Day 3 ---
+{ day:3, title:'道路標識③\n警戒・その他', icon:'⚠️', char:'eevee', special:false,
+  intro:'イーブイの道路標識最終回だよ！黄色いひし形の「警戒標識」は「気をつけて！」というサイン。知っておくだけで運転がずっと安心になるよ！',
+  sections:[
+    { type:'text', icon:'⚠️', title:'警戒標識とは？',
+      body:'黄色いひし形（◇）の標識は「警戒標識」といい、前方に危険や注意が必要な場所があることを知らせてくれます。強制力はないですが、必ず速度を落として注意しましょう。' },
+    { type:'signs', title:'よく見る警戒標識', signs:[
+      { cls:'sign-warning', inner:'', name:'信号機あり', desc:'前方に信号機がある。スピードを緩めて準備を。' },
+      { cls:'sign-warning', inner:'', name:'踏切あり', desc:'前方に踏切。必ず停止して安全確認！' },
+      { cls:'sign-warning', inner:'', name:'子ども・学校', desc:'子どもが飛び出す可能性あり。特に注意！' },
+      { cls:'sign-warning', inner:'', name:'カーブあり', desc:'前方にカーブ。速度を落として進入する。' },
+    ]},
+    { type:'step', title:'踏切の正しい通過方法', steps:[
+      '踏切の手前30mから速度を落とし始める',
+      '停止線の手前で必ず一時停止',
+      '窓を開けて音を確認、左右を目視で確認',
+      '安全確認後、一気に渡る（途中で止まらない）',
+      '線路の幅より広い踏切では特に注意',
+    ]},
+    { type:'tip', icon:'🦌', title:'動物注意・落石注意の標識',
+      body:'山道などでは「動物が飛び出す」「落石がある」標識があります。実際に動物が出ることも多いので、速度を落として走行しましょう。',
+      tip:'夜の山道は特に動物が出やすい！ハイビームで早めに発見できるようにしよう。' },
+  ],
+  quiz:[
+    { q:'黄色いひし形の標識は何を意味する？', choices:['通行禁止','警戒（注意が必要）','駐車可能','速度制限なし'], answer:1, explain:'黄色いひし形＝「警戒標識」で、前方に危険な場所や注意が必要な場所があることを知らせます。速度を落として慎重に進みましょう。' },
+    { q:'踏切通過の正しい手順は？', choices:['速度を落とさずそのまま通過','一時停止→左右確認→音確認→一気に渡る','徐行しながらゆっくり渡る','前の車が通過したら止まらなくてOK'], answer:1, explain:'踏切では①一時停止②窓を開けて音確認③左右目視確認④一気に渡る、が正しい手順です。途中で止まってはいけません！' },
+    { q:'学校・幼稚園付近の警戒標識がある場所で特に気をつけることは？', choices:['クラクションを鳴らして知らせる','子どもの飛び出しに備えて速度を落とす','反対に速度を上げて早く通過する','特に気にしなくていい'], answer:1, explain:'子どもは急に道路に飛び出すことがあります。学校・幼稚園付近では必ず速度を落とし、歩道や路地からの飛び出しに備えましょう。' },
+  ]
+},
+
+// --- Day 4 ---
+{ day:4, title:'発進・停止の\n基本操作', icon:'🚗', char:'pikachu', special:false,
+  intro:'ピカチュウだよ！標識を覚えたら次は実際の運転操作！発進と停止は運転の基本。丁寧にやれば絶対大丈夫だよ！',
+  sections:[
+    { type:'step', title:'乗り込む前のチェック', steps:[
+      'シートポジション：ブレーキペダルを踏んだとき膝が少し曲がる距離に調整',
+      'ルームミラー：車の後ろの景色が中央に映るように',
+      'サイドミラー：車体の端が少し映る角度に。地面が1/4ほど見えるように',
+      'シートベルトを装着（同乗者全員）',
+      'ヘッドレストを目の高さに調整',
+    ]},
+    { type:'step', title:'安全な発進の手順（AT車）', steps:[
+      'ブレーキペダルを踏んだままエンジンスタート',
+      'ギアをDに入れる',
+      'サイドブレーキを解除する',
+      'ミラーと目視で後方・周囲の安全確認',
+      'ウインカーを出す（必要な場合）',
+      'ブレーキをゆっくり離し、アクセルをそっと踏む',
+    ]},
+    { type:'step', title:'安全な停車の手順', steps:[
+      '止まりたい場所の手前から早めにブレーキをかけ始める',
+      '最後の1〜2mでブレーキを少し緩めると滑らかに止まれる（ポンピング）',
+      '完全停止したらギアをPに入れる',
+      'サイドブレーキをかける（坂道では特に）',
+    ]},
+    { type:'tip', icon:'🤲', title:'ハンドルの握り方',
+      body:'時計の9時と3時の位置（または10時と2時）を両手で持つのが基本。力を入れすぎず、肘が少し曲がる状態が理想です。',
+      tip:'手を交差させるハンドル操作（送りハンドル）は基本。腕をクロスしたまま戻すのを忘れずに！' },
+    { type:'warn', body:'⚠️ 急発進・急ブレーキは事故のもと！ゆっくり丁寧な操作が安全運転の基本です。' },
+  ],
+  quiz:[
+    { q:'サイドミラーの正しい調整は？', choices:['道路だけが映るように','空だけが映るように','車体の端が少し映り、地面が1/4ほど見える角度','自分の顔が映るように'], answer:2, explain:'サイドミラーは「車体の端が少し映り、地面が約1/4見える角度」が適切です。これにより後側方の安全確認ができます。' },
+    { q:'AT車で坂道に止めるとき、ギア以外にすることは？', choices:['特に何もしなくてよい','ハンドルを縁石に当てておく','サイドブレーキをかける','エンジンを切る'], answer:2, explain:'坂道ではギアをPに入れるだけでなく、サイドブレーキ（パーキングブレーキ）もしっかりかけましょう。ギアが外れた場合の保険になります。' },
+    { q:'滑らかに止まるコツは？', choices:['最後まで強くブレーキを踏み続ける','止まる直前にブレーキを少し緩める','勢いよくブレーキを踏む','アクセルを踏みながらブレーキを踏む'], answer:1, explain:'止まる直前に一瞬ブレーキを少し緩めると（ポンピングブレーキ）、車がフワッと滑らかに止まります。同乗者も快適になりますよ。' },
+  ]
+},
+
+// --- Day 5 ---
+{ day:5, title:'右折・左折の\nコツ', icon:'↩️', char:'pikachu', special:false,
+  intro:'左折と右折は運転で一番よく使う操作！正しい手順を覚えれば怖くない。ウインカーのタイミングが超大事だよ！',
+  sections:[
+    { type:'step', title:'左折の正しい手順', steps:[
+      '曲がる30m手前でウインカー（左）を出す',
+      'できるだけ道路の左端に寄る',
+      '速度を十分に落とす',
+      '左の巻き込み（自転車・バイク・歩行者）を確認（目視）',
+      'ゆっくりと曲がる。内輪差に注意してハンドルを切るのは遅めに',
+    ]},
+    { type:'warn', body:'⚠️ 内輪差に注意！\n車の前輪と後輪の通る道には差があります（内輪差）。左折時に大回りに曲がると事故を防げます。大型車ほど内輪差が大きいので注意。' },
+    { type:'step', title:'右折の正しい手順', steps:[
+      '曲がる30m手前でウインカー（右）を出す',
+      '道路の中央線に寄る',
+      '交差点の中心のすぐ内側を通る',
+      '対向車・対向の二輪・歩行者が完全にいなくなってから曲がる',
+      '渡る直前で横断歩行者を確認',
+    ]},
+    { type:'tip', icon:'🚦', title:'ウインカーのタイミング',
+      body:'ウインカーは曲がる30m手前で出す。交差点では交差点の手前30mで。車線変更は変更の3秒以上前に。遅すぎる・出さないのは危険な違反です。',
+      tip:'ウインカーを出して確認してから動く。確認してからウインカーを出すのは逆！' },
+    { type:'text', icon:'🔄', title:'右折での注意点',
+      body:'右折は対向車が多い分、危険度が高い操作です。焦らず、「全員が渡り終わったか？」を確認してから曲がりましょう。右折矢印信号が出たときのみ安全に右折できます。' },
+  ],
+  quiz:[
+    { q:'ウインカーを出すタイミングは？', choices:['曲がり始めてから','曲がりながら同時に','曲がる30m手前から','曲がった後に消す前に出す'], answer:2, explain:'ウインカーは曲がる30m手前で出します。早めに出すことで周囲の車が準備できます。遅すぎると危険です。' },
+    { q:'左折時に特に注意すべきことは？', choices:['対向車','後ろから来る大型車','左の巻き込み（自転車・バイク・歩行者）','右から来る車'], answer:2, explain:'左折時は左側の巻き込みに最も注意が必要です。自転車やバイクは見落としやすいので、必ず目視で確認しましょう。' },
+    { q:'右折時に曲がり始めるタイミングは？', choices:['対向車が来ていても急いで曲がる','対向車と歩行者が完全にいなくなってから','前の車が曲がり始めたら一緒に','矢印信号がなくても積極的に曲がる'], answer:1, explain:'右折は対向車と歩行者が完全にクリアになってから曲がります。急ぎたくなる気持ちを抑えて、安全を確認してから動きましょう。' },
+    { q:'内輪差とは？', choices:['左右のタイヤの重さの差','前輪と後輪が曲がるときに通る道の差','ガソリン量の差','ブレーキの効き具合の差'], answer:1, explain:'内輪差とは曲がるときに前輪と後輪が通る道のずれのこと。左折時に前輪が曲がれたからといって後輪も大丈夫とは限りません。大回り気味に曲がるのがコツです。' },
+  ]
+},
+
+// --- Day 6 ---
+{ day:6, title:'交差点の\n正しい走り方', icon:'🚦', char:'pikachu', special:false,
+  intro:'交差点は事故が一番多い場所！でも正しいルールを知っていれば怖くないよ。黄信号の対応と優先ルールをしっかり覚えよう！',
+  sections:[
+    { type:'text', icon:'🔴🟡🟢', title:'信号の意味（おさらい）',
+      body:'🟢 青：進める（ただし周囲の安全確認は必須）\n🟡 黄：原則停止。交差点に入っていない場合は止まる\n🔴 赤：必ず停止\n\n黄信号で止まれる場合は止まるのが原則です。「止まれないから行く」は違反になります。' },
+    { type:'step', title:'信号のない交差点の優先ルール', steps:[
+      '左方優先：左から来る車が優先（左の車が先に行く）',
+      '広い道が優先：狭い道から広い道への合流は広い道が優先',
+      '優先道路あり：優先道路の標識がある道が優先',
+      '上記が同じ場合は徐行して安全を確認してから進む',
+    ]},
+    { type:'tip', icon:'🚶', title:'横断歩道と交差点での歩行者',
+      body:'交差点での右左折時は、横断する歩行者が最優先です。矢印信号が出ていても歩行者がいる場合は必ず待ちます。',
+      tip:'「矢印信号が出たから絶対進める」は間違い！歩行者の安全が最優先！' },
+    { type:'text', icon:'🔄', title:'見通しの悪い交差点',
+      body:'見通しの悪い交差点では必ず徐行（約10km/h以下）が義務です。標識がなくても徐行して、前方が見えるところまで少しずつ車体を出して確認しましょう。「鼻先確認」とも呼ばれます。' },
+    { type:'warn', body:'⚠️ 黄信号を「急いで行け！」と思うのは間違いです。黄信号は「止まれるなら止まれ」の信号。無理な通過が重大事故につながります。' },
+  ],
+  quiz:[
+    { q:'黄信号での正しい行動は？', choices:['スピードを上げて急いで通過','止まれる場合は必ず停止、止まれない場合のみ通過','常にそのまま通過してOK','ハザードを点けながら通過'], answer:1, explain:'黄信号は「止まれるなら止まる」が原則です。交差点に入っていない場合は必ず停止します。「ギリギリ行ける！」という判断が事故につながります。' },
+    { q:'信号のない交差点で左から車が来た場合は？', choices:['自分が先に行く','左から来た車が優先なので先に行かせる','クラクションを鳴らして先に行く','どちらも止まる'], answer:1, explain:'左方優先の原則により、左から来た車が優先です。自分が右から来ている場合は一時停止や徐行して先に行かせましょう。' },
+    { q:'見通しの悪い交差点では？', choices:['スピードを上げて素早く通過する','必ず徐行して安全確認をしながら進む','クラクションを鳴らして進む','一時停止標識がなければそのまま進んでOK'], answer:1, explain:'見通しの悪い交差点では必ず徐行（約10km/h以下）が義務です。標識がなくても徐行して「鼻先確認」をしながら進みましょう。' },
+  ]
+},
+
+// --- Day 7: 中間テスト ---
+{ day:7, title:'⭐ 中間テスト\nDay1〜6の総復習', icon:'📝', char:'pikachu', special:true,
+  intro:'ここまでよく頑張ったね！Day1〜6の内容をまとめてテストするよ。満点じゃなくても大丈夫。間違えたところが次の課題！',
+  sections:[
+    { type:'text', icon:'📝', title:'中間テスト（10問）', body:'Day1〜6で学んだ標識・基本操作・交差点のルールから出題します。' },
+  ],
+  quiz:[
+    { q:'赤い八角形の標識の意味は？', choices:['速度制限','進入禁止','一時停止','駐車禁止'], answer:2, explain:'赤い八角形＝「一時停止（止まれ）」。タイヤが完全に止まるまで必ず停車する義務があります。' },
+    { q:'一方通行の標識の色と形は？', choices:['赤い丸','黄色いひし形','青い四角に白い矢印','白い四角'], answer:2, explain:'一方通行は青い四角に白い矢印の標識です。この方向にしか進めません。' },
+    { q:'左折時に最も注意すべきことは？', choices:['対向車','後ろの車','左側の巻き込み（自転車・バイク・歩行者）','右の信号'], answer:2, explain:'左折時の最大の危険は左側への巻き込みです。自転車やバイクは死角に入りやすいので必ず目視確認しましょう。' },
+    { q:'ウインカーを出すのはいつ？', choices:['曲がり始めながら','曲がった直後','曲がる30m手前','交差点に入ってから'], answer:2, explain:'ウインカーは曲がる30m手前で出します。早めに出すことで周囲の車が準備できます。' },
+    { q:'横断歩道で歩行者が渡ろうとしているとき、車は？', choices:['そのまま通過','減速しながら通過','必ず停止して歩行者を先に渡らせる','クラクションを鳴らす'], answer:2, explain:'横断歩道では歩行者が最優先です。渡ろうとしている人がいれば必ず停止して先に渡らせます。' },
+    { q:'信号のない交差点で「左方優先」とは？', choices:['左折が常に優先','左から来る車が優先','左側の道が狭ければ優先','自分が左にいれば優先'], answer:1, explain:'左方優先とは「左から来る車が優先」というルールです。自分が右から来ている場合は先に行かせましょう。' },
+    { q:'AT車の正しい発進手順は？', choices:['アクセルを踏む→ギアD→安全確認','ギアD→ブレーキ離す→アクセル','エンジン→ギアD→サイドブレーキ解除→安全確認→発進','安全確認→ギアD→全力加速'], answer:2, explain:'AT車の発進：エンジン→ギアD→サイドブレーキ解除→ミラーと目視で安全確認→ゆっくり発進が正しい手順です。' },
+    { q:'黄色いひし形の標識は何を示す？', choices:['禁止','指示','警戒（注意が必要）','案内'], answer:2, explain:'黄色いひし形＝警戒標識。前方に危険や注意が必要な場所があることを知らせます。速度を落として注意して進みましょう。' },
+    { q:'見通しの悪い交差点での義務は？', choices:['クラクションを鳴らす','徐行する','一時停止する','ライトをつける'], answer:1, explain:'見通しの悪い交差点では「徐行」（約10km/h以下）が義務です。標識がなくても徐行して安全確認しましょう。' },
+    { q:'踏切を通過するとき、途中で止まってはいけない理由は？', choices:['後続車に失礼だから','列車が来ても動けなくなる危険があるから','燃費が悪くなるから','法律で禁止されているわけではないから'], answer:1, explain:'踏切内で車が止まると、列車が来ても動けなくなり非常に危険です。安全確認後は一気に渡り切りましょう。エンストにも注意！' },
+  ]
+},
+
+// --- Day 8 ---
+{ day:8, title:'駐車①\n車庫入れのコツ', icon:'🅿️', char:'snorlax', special:false,
+  intro:'カビゴンだよ。のんびりゆっくりが僕のモットー。駐車も焦らずゆっくりやれば必ずできるよ。車庫入れは「3回で決める」を目標にしよう！',
+  sections:[
+    { type:'step', title:'バック駐車（車庫入れ）の手順', steps:[
+      '駐車スペースの隣の車と並列に止まる（約1台分前に出た位置）',
+      '右（または左）にハンドルをいっぱいに切って、ゆっくりバック開始',
+      '車の向きがスペースに対して45度になったらハンドルを反対側に全切り',
+      '後ろのタイヤが白線の外に出ないよう、バックカメラとミラーで確認',
+      '枠内に収まったらハンドルをまっすぐに戻して前後の調整',
+    ]},
+    { type:'tip', icon:'📷', title:'バックカメラの使い方',
+      body:'バックカメラのガイドラインを活用しましょう。黄色い線は「現在の車体の幅」、緑の線は「より安全な距離」を示します。カメラだけでなく、必ずミラーと目視も組み合わせて。',
+      tip:'バックカメラは広角レンズなので実際より物が遠く見える場合があります。感覚と組み合わせて使おう！' },
+    { type:'step', title:'目印の作り方', steps:[
+      '壁や柱がある場合：バックミラーに目印が映る位置を覚える',
+      'サイドミラーで白線が見える位置を確認しながら入れる',
+      '後ろの壁との距離は「バックカメラの赤い線（危険ゾーン）の少し前」',
+    ]},
+    { type:'warn', body:'⚠️ 失敗しても大丈夫！前に出て切り返せばいい。「3回以内に入れる」を目標に。焦って強引に入れると壁や隣の車にぶつかります。' },
+  ],
+  quiz:[
+    { q:'バック駐車で最初にすることは？', choices:['いきなりバックする','駐車スペースの前を通り過ぎて約1台分前に車を出す','ハンドルを切ってから車を寄せる','バックカメラだけを見る'], answer:1, explain:'バック駐車はまず駐車スペースから約1台分前に出た位置に並列で止めるのが基本。最初の位置取りが成功の鍵です。' },
+    { q:'バックカメラについて正しいのは？', choices:['カメラだけ見れば完璧','ミラーや目視と組み合わせて使う','実際より物が近く見える','信用しなくていい'], answer:1, explain:'バックカメラは有効ですが、広角レンズで遠近感がずれることも。必ずサイドミラーや目視と組み合わせて使いましょう。' },
+    { q:'バック駐車がうまくいかない場合は？', choices:['無理やり押し込む','その場で諦める','前に出て切り返し、位置を修正してやり直す','アクセルを踏み込んで一気に入れる'], answer:2, explain:'切り返しは失敗ではありません！プロのドライバーも切り返します。焦らず前に出て位置を修正してやり直しましょう。' },
+  ]
+},
+
+// --- Day 9 ---
+{ day:9, title:'駐車②\n縦列駐車', icon:'↕️', char:'snorlax', special:false,
+  intro:'縦列駐車は一番難しく感じるけど、手順を覚えたら大丈夫！カビゴンと一緒にゆっくりマスターしよう。練習あるのみだよ。',
+  sections:[
+    { type:'step', title:'縦列駐車の手順', steps:[
+      '駐車スペースの前の車と横に並ぶ（前の車の後端と自分の後端を揃える）',
+      'ハンドルを右にいっぱい切って、ゆっくりバック',
+      '車の角度が道路に対して45度になったら、ハンドルを左にいっぱい切り返す',
+      'バックを続けて車体が道路と平行になったら、ハンドルをまっすぐに戻す',
+      '前後の車との距離が均等になるよう前後に微調整',
+    ]},
+    { type:'tip', icon:'📏', title:'縦列のスペースの目安',
+      body:'縦列駐車に必要なスペースは自分の車の長さの約1.5倍。それ以下のスペースでは縦列は困難です。無理せず他のスペースを探しましょう。',
+      tip:'スペースを通り過ぎてみて「前の車の後端から後ろの車の前端」の距離を目測しよう。' },
+    { type:'text', icon:'↔️', title:'縦列後の調整',
+      body:'縦列後は前の車との距離と後ろの車との距離が均等になるよう調整します。距離の目安は前後それぞれ30〜50cm程度。歩道側の後輪が縁石に近すぎないかも確認しましょう。' },
+    { type:'warn', body:'⚠️ 縦列駐車は路上では緊張しますが、焦りが一番の敵です。うまくいかなければ一度前に出てやり直す勇気を持ちましょう。駐車禁止の場所では縦列もできません！' },
+  ],
+  quiz:[
+    { q:'縦列駐車に最低限必要なスペースの目安は？', choices:['自分の車と同じ長さ','自分の車の長さの約1.5倍','自分の車の2倍以上','関係ない'], answer:1, explain:'縦列駐車には自分の車の長さの約1.5倍のスペースが必要です。それ以下のスペースは無理せず他の駐車場を探しましょう。' },
+    { q:'縦列駐車の最初のポジションは？', choices:['駐車スペースの真後ろ','前の車の横に並び後端を揃える','スペースから少し離れた位置','前の車の前に出た位置'], answer:1, explain:'縦列は前の車と横に並び、後端を揃えるのが最初のポジション。この位置取りが縦列成功の鍵です。' },
+    { q:'縦列でうまく入れられなかったときは？', choices:['そのまま強引に入れる','一度前に出て位置を修正してやり直す','諦めて他の場所を探す','後ろの車にぶつかるギリギリまでバックする'], answer:1, explain:'縦列でも切り返しOKです！一度前に出て体勢を整えてから再挑戦しましょう。焦りが事故のもとです。' },
+  ]
+},
+
+// --- Day 10 ---
+{ day:10, title:'車線変更・\n合流のコツ', icon:'🔀', char:'pikachu', special:false,
+  intro:'車線変更と合流は走りながらの操作だから焦りやすいけど、「確認→ウインカー→確認→移動」の順番を守れば安全にできるよ！',
+  sections:[
+    { type:'step', title:'車線変更の正しい手順（ミラコメ目）', steps:[
+      '【ミ】ルームミラーで後方確認',
+      '【コ】（サイドミラーで）コーナーミラー確認',
+      '【メ】目視（直接振り向いて死角を確認）',
+      'ウインカーを出す（3秒以上前）',
+      '後続車が来ていないことを再確認',
+      'ゆっくりと車線を変える',
+    ]},
+    { type:'tip', icon:'👁️', title:'死角に注意',
+      body:'ミラーには映らない「死角」があります。特にサイドミラーの外側（車の斜め後ろ）は死角になりやすい。目視で振り向いて確認することが非常に重要です。',
+      tip:'「ミラコメ目（みらこめめ）」で覚えよう！ミラー→コーナー→目視の順番だよ。' },
+    { type:'step', title:'高速道路での合流手順', steps:[
+      '加速車線（合流レーン）でしっかり速度を上げる（本線と同じ速度まで）',
+      '本線の流れを確認しながら、入れるスペースを探す',
+      'ウインカーを出して合図',
+      'スペースに入るタイミングを見計らって加速しながら合流',
+      '合流後は車間距離を確保',
+    ]},
+    { type:'warn', body:'⚠️ 車線変更でよくある失敗：ウインカーを出してすぐ動く！ウインカーを出してから3秒以上待って後続車が確認できてから動くのが正しいルールです。' },
+  ],
+  quiz:[
+    { q:'車線変更の正しい順番は？', choices:['ウインカー→ミラー確認→移動','移動しながらウインカー→確認','ルームミラー→サイドミラー→目視→ウインカー→確認→移動','目視→移動→ウインカー'], answer:2, explain:'「ミラコメ目」：ルームミラー→サイドミラー→目視の順で確認してから、ウインカーを出し、再確認してから車線変更が正しい手順です。' },
+    { q:'目視確認が必要な理由は？', choices:['ルールだから','ミラーには映らない死角があるから','見た目がかっこいいから','後続車へのアピールになるから'], answer:1, explain:'ミラーには死角があります。特に斜め後方はミラーに映りません。目視で振り向くことで死角の確認ができます。' },
+    { q:'高速の合流車線（加速車線）で正しい行動は？', choices:['ゆっくり走って本線の車を待つ','本線と同じ速度になるまでしっかり加速する','止まって本線に隙間ができるのを待つ','クラクションを鳴らして入れてもらう'], answer:1, explain:'合流は本線の流れに合わせることが大切。加速車線でしっかりスピードを上げてから合流します。速度差があると危険です。' },
+  ]
+},
+
+// --- Day 11 ---
+{ day:11, title:'高速道路の\n走り方', icon:'🛣️', char:'dragonite', special:false,
+  intro:'カイリューだよ！高速道路は走り慣れると実はとても楽な道路なんだ。ルールと車間距離さえ守れば安全に走れるよ。一緒に学ぼう！',
+  sections:[
+    { type:'text', icon:'🛣️', title:'高速道路の基本ルール',
+      body:'最高速度：普通道路100km/h（一部区間120km/h）\n最低速度：50km/h（これ以下で走ってはいけない）\n走行車線：基本は左車線。追い越しのときのみ右（追越）車線を使う。\n追越後は必ず左車線に戻る。' },
+    { type:'step', title:'車間距離の目安', steps:[
+      '80km/hで走行中：約80m以上（速度と同じ距離がメートル）',
+      '100km/hで走行中：約100m以上（約3秒分の距離）',
+      '雨天・夜間：通常の1.5〜2倍の車間距離',
+      '前の車のブレーキランプが見えてから止まれる距離を常に確保',
+    ]},
+    { type:'step', title:'SA・PAの使い方', steps:[
+      '2時間に一度は必ず休憩を取る（眠気には要注意）',
+      '出口を見落とさないよう、案内標識（1km前・500m前）を確認',
+      'SA/PAでの出発時は本線の確認を忘れずに（本線は速い！）',
+      'ガソリンは半分になったら給油を心がける',
+    ]},
+    { type:'warn', body:'⚠️ 高速道路でやってはいけないこと：\n・停車・駐車（緊急時除く）\n・逆走\n・Uターン\n・携帯電話の使用\nこれらは命に関わる危険行為です。' },
+    { type:'tip', icon:'😴', title:'眠気を感じたら',
+      body:'眠気は高速道路最大の敵。眠いと感じたらすぐにSA/PAに入って休憩。カフェインは30分後に効いてくるので、コーヒーを飲んですぐ15分仮眠するのが効果的。',
+      tip:'「まだ行ける」は危険サイン。眠気を感じたらすぐ休憩！' },
+  ],
+  quiz:[
+    { q:'高速道路の最低速度は？', choices:['30km/h','40km/h','50km/h','制限なし'], answer:2, explain:'高速道路の最低速度は50km/hです。これより遅く走ると後続車の危険になり違反になります。' },
+    { q:'高速道路での正しい走り方は？', choices:['右車線を常に走る','追い越し時以外は左車線を走る','空いていれば好きな車線でOK','追い越し車線をキープする'], answer:1, explain:'高速道路は基本的に左側の走行車線を走ります。追い越しのときだけ右（追越）車線を使い、追い越したら左車線に戻ります。' },
+    { q:'100km/hで走行中の目安の車間距離は？', choices:['約30m','約50m','約100m以上','約200m'], answer:2, explain:'車間距離の目安は走行速度と同じ数字のメートル。100km/hなら約100m以上が目安です。雨や夜間はさらに長く取りましょう。' },
+    { q:'眠気を感じたら何をすべき？', choices:['窓を開けて風に当たりながら走る','ラジオを大音量にして眠気を覚ます','すぐにSA/PAに入って休憩する','少し速度を上げて気合いを入れる'], answer:2, explain:'眠気を感じたらすぐにSA/PAへ。コーヒーを飲んで15分仮眠する「カフェインナップ」が効果的です。「まだ行ける」は危険サインです。' },
+  ]
+},
+
+// --- Day 12 ---
+{ day:12, title:'雨天・夜間\n悪条件の運転', icon:'🌧️', char:'lapras', special:false,
+  intro:'ラプラスだよ！雨の日や夜間の運転はちょっと怖く感じるよね。でも正しい知識があれば安全に走れるよ。無理しないことも大切な判断！',
+  sections:[
+    { type:'step', title:'雨天運転のポイント', steps:[
+      '早めにヘッドライトをON（夕方・小雨でも点灯）',
+      '速度を10〜20%落として走行',
+      '車間距離を通常の1.5〜2倍に',
+      '急ブレーキ・急ハンドル禁止（スリップの原因）',
+      '水たまりは歩行者への水はねに注意して徐行',
+    ]},
+    { type:'tip', icon:'💧', title:'ハイドロプレーニング現象',
+      body:'高速で水たまりに入ると、タイヤが浮いてハンドルもブレーキも効かなくなることがあります（ハイドロプレーニング）。速度を落とすのが最大の対策。',
+      tip:'ハイドロプレーニングが起きたら：アクセルをゆっくり離す。急ブレーキは絶対NG！' },
+    { type:'step', title:'夜間運転のポイント', steps:[
+      '日没前（薄暗くなったら）にライトをON',
+      '市街地ではロービーム。郊外・対向車がいない場所ではハイビームを活用',
+      '対向車が来たらロービームに切り替え',
+      '歩行者・自転車は特に見落としやすい。交差点では特に注意',
+    ]},
+    { type:'text', icon:'🌫️', title:'霧・雪・凍結への対応',
+      body:'霧：フォグランプを点灯。速度を落として車間距離を十分に。\n\n雪・凍結：急ブレーキ・急ハンドル・急加速は厳禁。「急のつく動作」をしない。ブレーキは早めに軽く踏み、ポンピングブレーキを活用。\n\nスタッドレスタイヤでも凍結路では滑ります。' },
+    { type:'warn', body:'⚠️ 台風・大雨・大雪のときは「不要不急の外出はしない」という判断も大切な運転技術。無理して走るより安全な時間帯を待つ勇気を持ちましょう。' },
+  ],
+  quiz:[
+    { q:'雨の日の運転で正しいのは？', choices:['視界が悪くなければライトは不要','速度を上げて早く帰る','早めにライトをつけ、速度を落として走る','いつもと同じ車間距離でOK'], answer:2, explain:'雨天は視界が悪くなるため、小雨でも早めにライトを点灯します。速度は10〜20%落とし、車間距離も1.5〜2倍にしましょう。' },
+    { q:'ハイドロプレーニング現象が起きたらどうする？', choices:['急ブレーキを踏む','アクセルをゆっくり離す','ハンドルを激しく左右に動かす','スピードを上げて水から抜け出す'], answer:1, explain:'ハイドロプレーニングが起きたら急ブレーキは絶対NG。アクセルをゆっくり離してスピードを落としましょう。' },
+    { q:'夜間走行でハイビームを使うのは正しい？', choices:['常にハイビームがいい','市街地や対向車がいるときはロービーム、郊外でハイビームを活用','夜間は常にロービームのみ','ハイビームは使わなくていい'], answer:1, explain:'夜間は状況に応じてライトを切り替えます。市街地や対向車がいる場合はロービーム、対向車のいない郊外ではハイビームで視野を広げましょう。' },
+    { q:'雪道・凍結路で気をつけることは？', choices:['急ブレーキを素早く踏む','スタッドレスがあれば普通に走れる','急のつく動作（急ブレーキ・急ハンドル）をしない','スピードを上げて早く走り抜ける'], answer:2, explain:'雪道・凍結路では「急」のつく動作が命取りです。ブレーキは早めに優しく踏み、ハンドル操作も丁寧に。スタッドレスでも凍結路では滑ります。' },
+  ]
+},
+
+// --- Day 13 ---
+{ day:13, title:'危険予測と\n安全確認', icon:'🔍', char:'pikachu', special:false,
+  intro:'運転は「かもしれない運転」が大事！「歩行者が出てくるかもしれない」「急に止まるかもしれない」と常に考えて走ることが事故を防ぐよ！',
+  sections:[
+    { type:'text', icon:'👁️', title:'かもしれない運転とは',
+      body:'「だろう運転」（歩行者は来ないだろう・信号は変わらないだろう）は事故の原因になります。「かもしれない運転」（子どもが飛び出すかもしれない・信号が変わるかもしれない）で常に危険を予測して走りましょう。' },
+    { type:'step', title:'死角への対応', steps:[
+      'Aピラー（フロントガラス横の柱）：左折時に歩行者や自転車が隠れる',
+      '前方視界：停車中の車の陰から子どもが飛び出す',
+      '交差点の建物の影：一時停止後も少しずつ出て確認',
+      'バックカメラの死角：低い位置（子ども・動物）に注意',
+    ]},
+    { type:'tip', icon:'🚨', title:'あおり運転への対応',
+      body:'あおり運転（後ろから近づいてくる車）に遭遇したら：\n①速度を落として先に行かせる\n②SA/PAや安全な場所に停まる\n③絶対に対抗しない\n④通報する（ドラレコがあれば証拠になる）',
+      tip:'あおり運転には絶対対抗しないこと。自分の安全最優先！' },
+    { type:'step', title:'特に注意すべき場所・状況', steps:[
+      '学校・公園付近：子どもが突然飛び出す',
+      '住宅街の路地：自転車・子ども・老人が急に出てくる',
+      '雨の日の停留所付近：バスから降りた人が道路を横断する',
+      '夜の横断歩道：歩行者が非常に見えにくい',
+      '大型トラックの横：側面の死角が大きい',
+    ]},
+    { type:'warn', body:'⚠️ 疲れを感じたら無理に運転しない。集中力が落ちると危険予測ができなくなります。体の状態も安全運転の大切な要素です。' },
+  ],
+  quiz:[
+    { q:'「だろう運転」と「かもしれない運転」の違いは？', choices:['同じ意味','だろう運転は安全、かもしれない運転は危険','だろう運転は楽観的で危険、かもしれない運転は危険を予測する安全な運転','スピードの違い'], answer:2, explain:'「だろう運転」（問題ないだろう）は楽観的で事故につながります。「かもしれない運転」（危険があるかもしれない）で常に危険を予測して走ることが安全運転の基本です。' },
+    { q:'Aピラーとは何？', choices:['サイドミラーのこと','フロントガラス横の柱で死角になる部分','後ろの柱','バックカメラのこと'], answer:1, explain:'Aピラーはフロントガラス横の柱で、左折時などに歩行者や自転車を隠してしまう死角になります。特に交差点での確認に注意しましょう。' },
+    { q:'あおり運転に遭遇したとき正しい行動は？', choices:['同じ速度で対抗する','相手より速く走って逃げる','速度を落として先に行かせるか安全な場所に停まる','クラクションを鳴らして警告する'], answer:2, explain:'あおり運転には絶対対抗しないこと。速度を落として先に行かせるか、SA/PAや安全な場所に停まりましょう。警察への通報も有効です。' },
+  ]
+},
+
+// --- Day 14: 卒業テスト ---
+{ day:14, title:'🎓 卒業テスト！', icon:'🎓', char:'pikachu', special:true,
+  intro:'いよいよ卒業テストだよ！ピカチュウたち全員が応援してる！14日間頑張ってきた真理子なら絶対できる！全力で行こう！',
+  sections:[
+    { type:'text', icon:'🎓', title:'卒業テスト（15問）', body:'Day1〜13の全範囲から出題します。80%以上（12問以上）正解で卒業認定！' },
+  ],
+  quiz:[
+    { q:'赤い八角形「止まれ」の標識がある場所での正しい行動は？', choices:['徐行すれば通過OK','タイヤが完全に止まるまで停止してから左右確認','ゆっくり走りながら左右確認','前の車が行ったら止まらなくてOK'], answer:1, explain:'一時停止は「タイヤが完全に止まるまで停止」が義務。少しでも動いていると違反になります。停止後は必ず左右を目視確認しましょう。' },
+    { q:'左折時にウインカーを出すのはいつ？', choices:['曲がり始めてから','交差点に入ってから','曲がる30m手前から','曲がり終わってから'], answer:2, explain:'ウインカーは曲がる30m手前で出します。早めに出すことで後続車が予測できます。' },
+    { q:'横断歩道で歩行者が渡ろうとしているとき車は？', choices:['速度を落として通過','クラクションで知らせる','必ず停止して先に渡らせる','矢印信号があれば気にしなくていい'], answer:2, explain:'横断歩道では歩行者が最優先。渡ろうとしている・待っている人がいる場合は必ず停止しましょう。' },
+    { q:'車線変更前の正しい確認順序は？', choices:['目視→ウインカー→ミラー','ウインカー→移動','ルームミラー→サイドミラー→目視→ウインカー→再確認→移動','ウインカー→ルームミラー→移動'], answer:2, explain:'「ミラコメ目」：ルームミラー→サイドミラー→目視の順で確認してからウインカーを出し、再確認してから車線変更が正しい手順です。' },
+    { q:'高速道路で基本的に走る車線は？', choices:['右の追越車線','中央車線','左の走行車線','どこでもいい'], answer:2, explain:'高速道路は基本的に左側の走行車線を走ります。追い越し時のみ右（追越）車線を使い、追い越したらすぐ左に戻りましょう。' },
+    { q:'雨天での正しい運転は？', choices:['ライトは視界が良ければ不要','速度を10〜20%落として車間距離を多めに','いつも通りの速度で問題ない','急ブレーキで止まれる'], answer:1, explain:'雨天では早めのライト点灯、速度を10〜20%落とし、車間距離を1.5〜2倍に増やしましょう。急のつく動作は禁物です。' },
+    { q:'夜間運転でハイビームを使っていいのは？', choices:['常にハイビームでOK','対向車のいない郊外など','市街地では常にハイビーム','ハイビームは使わない'], answer:1, explain:'ハイビームは対向車・前走車のいない郊外で使います。対向車や前走車がいる市街地ではロービームに切り替えましょう。' },
+    { q:'踏切で正しい通過方法は？', choices:['速度を落とさず通過','一時停止→左右目視→音確認→一気に渡る','ゆっくり渡ればOK','遮断機がなければ止まらなくていい'], answer:1, explain:'踏切は①一時停止②左右を目視③窓開けて音確認④一気に渡り切る、が正しい手順。途中で止まってはいけません！' },
+    { q:'「かもしれない運転」とは？', choices:['スピードを落として走ること','常に危険を予測して行動すること','ベテランドライバーだけの技術','疑いながら走ること'], answer:1, explain:'「かもしれない運転」は「子どもが飛び出すかもしれない」「急に止まるかもしれない」と常に危険を予測して走ること。安全運転の基本です。' },
+    { q:'バック駐車で切り返しをすることは？', choices:['失敗の証なので恥ずかしい','プロも行う普通の操作','禁止されている','時間がかかるのでしてはいけない'], answer:1, explain:'切り返しはむしろ安全のための当然の操作です。無理に入れようとする方が危険。プロのドライバーも普通に切り返しを行います。' },
+    { q:'信号のない交差点で左から車が来た場合は？', choices:['自分が先に行く','左から来た車が優先なので先に行かせる','どちらも同時に行く','クラクションで先に行く'], answer:1, explain:'左方優先の原則。左から来た車が優先です。徐行して安全を確認してから進みましょう。' },
+    { q:'高速道路での眠気の正しい対処法は？', choices:['窓を開けて頑張る','カフェインを飲みながら運転する','すぐにSA/PAに入って休憩する','音楽を大音量にする'], answer:2, explain:'眠気を感じたらすぐSA/PAへ。コーヒーを飲んで15分仮眠する「カフェインナップ」が効果的です。「まだ行ける」は危険なサインです。' },
+    { q:'車間距離100km/hでの目安は？', choices:['約30m','約50m','約100m以上','約200m以上'], answer:2, explain:'車間距離の目安は走行速度と同じ数字のメートル。100km/hなら約100m以上（3秒分）が目安です。' },
+    { q:'AT車でサイドブレーキをかける必要があるのは？', choices:['高速道路のみ','平坦な場所のみ','停車するときは常にかける（特に坂道）','必要ない'], answer:2, explain:'サイドブレーキは停車するときにかけましょう。特に坂道ではギアがPから外れた際の保険になります。平地でも習慣的にかけることを推奨します。' },
+    { q:'あおり運転に遭遇した場合の正しい行動は？', choices:['速度を上げて逃げる','同じようにあおり返す','安全な場所に停まり先に行かせる・通報する','急ブレーキを踏む'], answer:2, explain:'あおり運転には絶対対抗しないこと。速度を落とし先に行かせるか、SA/PAなど安全な場所に停まりましょう。ドラレコ映像を警察に提供するのも有効です。' },
+  ]
+},
+]; // end COURSE
+
+// ==============================
+//  状態管理
+// ==============================
+let progress = JSON.parse(localStorage.getItem('mariko_progress')||'{"completed":[],"scores":{}}');
+let currentDay = null;
+let quizState = { idx:0, correct:0, answered:[] };
+
+function saveProgress() { localStorage.setItem('mariko_progress', JSON.stringify(progress)); }
+function isDone(d) { return progress.completed.includes(d); }
+function isAvailable(d) { return d===1 || isDone(d-1); }
+
+// ==============================
+//  タイトル装飾
+// ==============================
+function buildStars() {
+  const el = document.getElementById('titleStars');
+  for(let i=0;i<60;i++){
+    const s=document.createElement('div'); s.className='tstar';
+    const sz=1+Math.random()*2.5;
+    s.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*100}%;animation-delay:${Math.random()*3}s;animation-duration:${1.5+Math.random()*2}s;`;
+    el.appendChild(s);
+  }
+}
+
+// ==============================
+//  マップ画面
+// ==============================
+function showMap() {
+  const done = progress.completed.length;
+  document.getElementById('mapProgressFill').style.width=(done/14*100)+'%';
+  document.getElementById('mapProgressText').textContent=`${done}/14`;
+
+  const path = document.getElementById('mapPath');
+  path.innerHTML='';
+
+  // 2行ずつ、交互に配置
+  const rows = [[1,2,3,4,5],[6,7,8,9,10],[11,12,13,14]];
+  rows.forEach((row,ri)=>{
+    if(ri>0){
+      const conn=document.createElement('div'); conn.className='map-connector';
+      conn.innerHTML='<div class="connector-line"></div>';
+      path.appendChild(conn);
+    }
+    const rowEl=document.createElement('div'); rowEl.className='map-row';
+    // 奇数行は逆順で表示（ジグザグ）
+    const displayRow = ri%2===1 ? [...row].reverse() : row;
+    displayRow.forEach(d=>{
+      const day=COURSE[d-1];
+      const done=isDone(d), avail=isAvailable(d);
+      const node=document.createElement('div');
+      node.className='day-node'+(done?' done':avail?' available':' locked')+(day.special?' special':'');
+      node.innerHTML=`
+        <div class="node-icon">${done?'⭐':avail?day.icon:'🔒'}</div>
+        <div class="node-num">Day${d}</div>
+        ${done?'<div class="node-star">✅</div>':''}
+      `;
+      if(avail||done) node.onclick=()=>openLesson(d);
+      rowEl.appendChild(node);
+    });
+    path.appendChild(rowEl);
+  });
+  showScreen('mapScreen');
+}
+
+// ==============================
+//  レッスン画面
+// ==============================
+function openLesson(dayNum) {
+  currentDay = COURSE[dayNum-1];
+  document.getElementById('lessonHeaderTitle').textContent=currentDay.title.replace('\n',' ');
+  document.getElementById('lessonDayBadge').textContent=`Day ${dayNum}`;
+
+  const body=document.getElementById('lessonBody');
+  body.innerHTML='';
+
+  // キャラクター bubble
+  const char=CHARS[currentDay.char];
+  body.innerHTML+=`
+    <div class="char-section">
+      <div class="char-avatar" style="background:${char.bg};border-color:${char.color}">
+        <span style="font-size:2rem">${char.emoji}</span>
+      </div>
+      <div class="bubble" style="border:1px solid ${char.color}22">
+        <div style="font-size:.7rem;color:${char.color};font-weight:bold;margin-bottom:4px">${char.name}</div>
+        <p style="font-size:.88rem;color:rgba(255,255,255,.85);white-space:pre-line">${currentDay.intro}</p>
+      </div>
+    </div>`;
+
+  // セクション
+  currentDay.sections.forEach(sec=>{
+    if(sec.type==='text'){
+      body.innerHTML+=`<div class="section-card"><div class="sc-header"><span class="sc-icon">${sec.icon}</span><span class="sc-title">${sec.title}</span></div><div class="sc-body" style="white-space:pre-line">${sec.body}</div></div>`;
+    } else if(sec.type==='step'){
+      body.innerHTML+=`<div class="section-card"><div class="sc-header"><span class="sc-icon">📋</span><span class="sc-title">${sec.title}</span></div><ol class="steps-list">${sec.steps.map(s=>`<li>${s}</li>`).join('')}</ol></div>`;
+    } else if(sec.type==='warn'){
+      body.innerHTML+=`<div class="section-card warn"><div class="sc-body" style="white-space:pre-line">${sec.body}</div></div>`;
+    } else if(sec.type==='tip'){
+      body.innerHTML+=`<div class="section-card tip-card"><div class="sc-header"><span class="sc-icon">${sec.icon}</span><span class="sc-title">${sec.title}</span></div><div class="sc-body" style="white-space:pre-line">${sec.body}</div><div class="sc-tip">💡 ${sec.tip}</div></div>`;
+    } else if(sec.type==='info'){
+      body.innerHTML+=`<div class="section-card info"><div class="sc-body" style="white-space:pre-line">${sec.body}</div></div>`;
+    } else if(sec.type==='signs'){
+      body.innerHTML+=`<div class="section-card"><div class="sc-header"><span class="sc-icon">🪧</span><span class="sc-title">${sec.title}</span></div>${signGrid(sec.signs)}</div>`;
+    }
+  });
+
+  // クイズセクション
+  quizState={idx:0, correct:0, answered:Array(currentDay.quiz.length).fill(null)};
+  body.innerHTML+=renderQuizSection();
+
+  showScreen('lessonScreen');
+  body.scrollTop=0;
+}
+
+function renderQuizSection(){
+  const quiz=currentDay.quiz;
+  let html=`<div class="quiz-section"><div class="quiz-title">🧠 クイズに答えよう！（${quiz.length}問）</div>`;
+  quiz.forEach((q,i)=>{
+    html+=`<div class="quiz-card" id="qcard-${i}">
+      <div class="quiz-num">Q${i+1} / ${quiz.length}</div>
+      <div class="quiz-q">${q.q}</div>
+      <div class="quiz-choices" id="qchoices-${i}">${q.choices.map((c,ci)=>`
+        <button class="choice-btn" onclick="answerQuiz(${i},${ci})">${c}</button>`).join('')}
+      </div>
+      <div class="quiz-explain" id="qexplain-${i}">${q.explain}</div>
+      <button class="quiz-next-btn" id="qnext-${i}" onclick="scrollToNext(${i})">${i===quiz.length-1?'✅ 結果を見る':'次の問題へ →'}</button>
+    </div>`;
+  });
+  html+='</div>';
+  return html;
+}
+
+function answerQuiz(qIdx, choiceIdx){
+  const q=currentDay.quiz[qIdx];
+  if(quizState.answered[qIdx]!==null) return;
+  quizState.answered[qIdx]=choiceIdx;
+
+  const choicesEl=document.getElementById(`qchoices-${qIdx}`);
+  const btns=choicesEl.querySelectorAll('.choice-btn');
+  btns.forEach((btn,ci)=>{
+    btn.classList.add('disabled');
+    if(ci===q.answer) btn.classList.add('correct');
+    else if(ci===choiceIdx) btn.classList.add('wrong');
+  });
+
+  if(choiceIdx===q.answer) quizState.correct++;
+
+  document.getElementById(`qexplain-${qIdx}`).classList.add('show');
+  document.getElementById(`qnext-${qIdx}`).classList.add('show');
+}
+
+function scrollToNext(qIdx){
+  const next=qIdx+1;
+  if(next<currentDay.quiz.length){
+    const el=document.getElementById(`qcard-${next}`);
+    if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
+  } else {
+    showDayComplete();
+  }
+}
+
+function showDayComplete(){
+  const body=document.getElementById('lessonBody');
+  const total=currentDay.quiz.length;
+  const correct=quizState.correct;
+  const pct=Math.round(correct/total*100);
+  const stars=pct>=80?'⭐⭐⭐':pct>=60?'⭐⭐':'⭐';
+  const char=CHARS[currentDay.char];
+
+  // 合格判定（卒業テストは12/15以上、それ以外は全正解または全回答で合格）
+  const isGrad=(currentDay.day===14);
+  const passed=isGrad?(correct>=12):(correct>=Math.ceil(total*0.6));
+
+  if(passed && !isDone(currentDay.day)){
+    progress.completed.push(currentDay.day);
+    progress.scores[currentDay.day]=correct;
+    saveProgress();
+    launchConfetti();
+  }
+
+  const completeHtml=`<div class="day-complete">
+    <div class="complete-emoji">${passed?'🎉':'💪'}</div>
+    <div class="complete-title">${passed?'クリア！':'もう少し！'}</div>
+    <div class="score-display">${stars}</div>
+    <div class="complete-sub">
+      ${total}問中 <strong style="color:var(--yellow);font-size:1.2em">${correct}</strong> 問正解（${pct}%）<br>
+      ${passed?'よくできました！次のステップへ進もう！':'間違えた問題をもう一度確認して再チャレンジしよう！'}
+    </div>
+    <div class="char-section" style="margin:16px 0">
+      <div class="char-avatar" style="background:${char.bg};border-color:${char.color}">
+        <span style="font-size:2rem">${char.emoji}</span>
+      </div>
+      <div class="bubble" style="border:1px solid ${char.color}22">
+        <p style="font-size:.9rem;white-space:pre-line">${passed?getPassMsg(currentDay.day,char):getFailMsg(char)}</p>
+      </div>
+    </div>
+    ${passed&&currentDay.day===14?
+      `<button class="btn-primary" onclick="showGraduation()" style="width:100%;margin-bottom:12px">🎓 卒業証書を見る！</button>`:
+      passed?`<button class="btn-primary" onclick="showMap()" style="width:100%;margin-bottom:12px">📍 次のDayへ！</button>`:''}
+    <button class="btn-secondary" style="width:100%" onclick="openLesson(${currentDay.day})">🔄 もう一度やり直す</button>
+  </div>`;
+
+  document.getElementById('lessonBody').insertAdjacentHTML('beforeend',completeHtml);
+  setTimeout(()=>{
+    document.querySelector('.day-complete').scrollIntoView({behavior:'smooth'});
+  },300);
+}
+
+function getPassMsg(day,char){
+  const msgs={
+    pikachu:['すごい！ピカチュウも嬉しいよ！どんどん進もう！','完璧だよ！真理子は天才かも！','やった！クリア！次も一緒に頑張ろう！'],
+    eevee:['よくできました！標識のことがよくわかったね！','素晴らしい！イーブイも誇らしいよ！'],
+    snorlax:['ゆっくりでも確実に覚えてくれてありがとう。カビゴンも満足だよ...zzz','完璧だよ...ゆっくり丁寧が大事だからね...zzz'],
+    lapras:['素晴らしい！悪天候でも安全に走れるね！','よくできました！ラプラスが応援してるよ！'],
+    dragonite:['完璧だ！高速道路もバッチリだね！真理子かっこいい！','素晴らしい！カイリューも一緒に飛べるくらい嬉しいよ！'],
+  };
+  const arr=msgs[char.name==='ピカチュウ'?'pikachu':char.name==='イーブイ'?'eevee':char.name==='カビゴン'?'snorlax':char.name==='ラプラス'?'lapras':'dragonite'];
+  return arr[Math.floor(Math.random()*arr.length)];
+}
+
+function getFailMsg(char){
+  return `大丈夫！間違えたところがわかったね。\nもう一度レッスンを確認してからリトライしよう！`;
+}
+
+function showGraduation(){
+  launchConfetti();
+  showScreen('graduationScreen');
+  launchConfetti();
+}
+
+// ==============================
+//  紙吹雪
+// ==============================
+function launchConfetti(){
+  const wrap=document.getElementById('confettiWrap');
+  wrap.innerHTML='';
+  const cols=['#f5c200','#ff6b35','#e74c3c','#27ae60','#2980b9','#9b59b6','#1abc9c'];
+  for(let i=0;i<80;i++){
+    const p=document.createElement('div'); p.className='cp';
+    const sz=5+Math.random()*9;
+    p.style.cssText=`left:${Math.random()*100}%;width:${sz}px;height:${sz}px;background:${cols[Math.floor(Math.random()*cols.length)]};border-radius:${Math.random()>.5?'50%':'3px'};animation-duration:${2+Math.random()*2}s;animation-delay:${Math.random()*1.5}s;`;
+    wrap.appendChild(p);
+  }
+}
+
+// ==============================
+//  画面切替
+// ==============================
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ==============================
+//  初期化
+// ==============================
+buildStars();
+</script>
+</body>
+</html>
