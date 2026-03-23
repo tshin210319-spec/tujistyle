@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>真理子のペーパー卒業</title>
+  <title>真理子の運転応援</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     :root {
@@ -155,8 +155,8 @@
 <div class="screen active" id="titleScreen">
   <div class="t-stars" id="titleStars"></div>
   <div class="t-chara">⚡</div>
-  <h1 class="t-title">真理子の<br>ペーパー卒業</h1>
-  <p class="t-sub">14日間で運転マスター！</p>
+  <h1 class="t-title">真理子の<br>運転応援</h1>
+  <p class="t-sub">好きなテーマから自由に学べる！</p>
   <div class="t-badge-row">
     <div class="t-badge">⚡</div>
     <div class="t-badge">🦊</div>
@@ -197,7 +197,7 @@
   <div class="grad-cert">
     <div class="cert-label">✨ 卒業証明書 ✨</div>
     <div class="cert-name">真理子</div>
-    <div class="cert-text">14日間のペーパードライバー講座を<br>見事に修了しました。<br><br>安全で自信ある運転を応援しています！<br>ピカチュウたちより 💛</div>
+    <div class="cert-text">運転応援コースを<br>見事に修了しました。<br><br>安全で自信ある運転を応援しています！<br>ピカチュウたちより 💛</div>
   </div>
   <button class="btn-primary" onclick="showMap()">もう一度みる</button>
 </div>
@@ -641,7 +641,7 @@ let quizState = { idx:0, correct:0, answered:[] };
 
 function saveProgress() { localStorage.setItem('mariko_progress', JSON.stringify(progress)); }
 function isDone(d) { return progress.completed.includes(d); }
-function isAvailable(d) { return d===1 || isDone(d-1); }
+function isAvailable(d) { return true; }
 
 // ==============================
 //  タイトル装飾
