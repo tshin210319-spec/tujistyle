@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>AI情報ダッシュボード 2025-2026</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+    :root {
+      --bg:#0d0d1a; --bg2:#141428; --card:#1a1a30; --card2:#20203a;
+      --border:rgba(255,255,255,0.07); --text:#f0f0ff; --sub:rgba(255,255,255,0.55);
+      --blue:#4f8ef7; --purple:#a855f7; --green:#22c55e; --yellow:#f5c200;
+      --red:#f43f5e; --cyan:#06b6d4; --orange:#f97316;
+    }
+    body { font-family:'Hiragino Kaku Gothic ProN','Meiryo',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+    /* ===== HEADER ===== */
+    .header { background:linear-gradient(135deg,#0d0d1a,#1a0a30,#0a1a3a); padding:20px 16px 0; position:sticky; top:0; z-index:100; border-bottom:1px solid var(--border); }
+    .header-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+    .logo { display:flex; align-items:center; gap:10px; }
+    .logo-icon { width:36px; height:36px; background:linear-gradient(135deg,var(--blue),var(--purple)); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.2rem; }
+    .logo-text { font-size:1rem; font-weight:bold; }
+    .logo-text span { font-size:.7rem; display:block; color:var(--sub); font-weight:normal; }
+    .update-badge { font-size:.7rem; background:rgba(79,142,247,.15); border:1px solid rgba(79,142,247,.3); color:var(--blue); padding:4px 10px; border-radius:12px; }
+    /* Search */
+    .search-wrap { position:relative; margin-bottom:14px; }
+    .search-input { width:100%; padding:10px 16px 10px 40px; background:var(--card2); border:1px solid var(--border); border-radius:12px; color:var(--text); font-size:.9rem; font-family:inherit; outline:none; transition:border-color .2s; }
+    .search-input:focus { border-color:rgba(79,142,247,.5); }
+    .search-icon { position:absolute; left:14px; top:50%; transform:translateY(-50%); color:var(--sub); font-size:1rem; pointer-events:none; }
+    /* Tabs */
+    .tabs { display:flex; gap:4px; overflow-x:auto; padding-bottom:0; scrollbar-width:none; }
+    .tabs::-webkit-scrollbar { display:none; }
+    .tab { padding:10px 18px; font-size:.85rem; font-weight:bold; border:none; background:transparent; color:var(--sub); cursor:pointer; border-radius:10px 10px 0 0; white-space:nowrap; font-family:inherit; transition:all .2s; position:relative; }
+    .tab.active { color:var(--text); background:var(--bg2); }
+    .tab.active::after { content:''; position:absolute; bottom:0; left:0; right:0; height:2px; background:linear-gradient(90deg,var(--blue),var(--purple)); border-radius:2px 2px 0 0; }
+    /* ===== BODY ===== */
+    .body { padding:16px; max-width:900px; margin:0 auto; }
+    /* Section */
+    .section { display:none; }
+    .section.active { display:block; }
+    /* Filter tags */
+    .filter-row { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px; }
+    .filter-tag { padding:5px 14px; border-radius:20px; font-size:.78rem; cursor:pointer; border:1px solid; transition:all .15s; font-family:inherit; background:transparent; }
+    .filter-tag.all { border-color:rgba(255,255,255,.2); color:var(--sub); }
+    .filter-tag.all.active, .filter-tag:hover { background:rgba(255,255,255,.1); color:var(--text); }
+    /* Cards grid */
+    .cards-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:14px; }
+    @media(max-width:640px){ .cards-grid { grid-template-columns:1fr; } }
+    /* Card */
+    .card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:18px; transition:transform .2s,box-shadow .2s; cursor:pointer; position:relative; overflow:hidden; }
+    .card:hover { transform:translateY(-3px); box-shadow:0 8px 32px rgba(0,0,0,.4); }
+    .card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; border-radius:16px 16px 0 0; }
+    .card.blue::before { background:linear-gradient(90deg,var(--blue),var(--cyan)); }
+    .card.purple::before { background:linear-gradient(90deg,var(--purple),var(--blue)); }
+    .card.green::before { background:linear-gradient(90deg,var(--green),var(--cyan)); }
+    .card.yellow::before { background:linear-gradient(90deg,var(--yellow),var(--orange)); }
+    .card.red::before { background:linear-gradient(90deg,var(--red),var(--orange)); }
+    .card.cyan::before { background:linear-gradient(90deg,var(--cyan),var(--blue)); }
+    .card-header { display:flex; align-items:flex-start; gap:12px; margin-bottom:12px; }
+    .card-icon { width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.4rem; flex-shrink:0; }
+    .card-icon.blue { background:rgba(79,142,247,.15); }
+    .card-icon.purple { background:rgba(168,85,247,.15); }
+    .card-icon.green { background:rgba(34,197,94,.15); }
+    .card-icon.yellow { background:rgba(245,194,0,.15); }
+    .card-icon.red { background:rgba(244,63,94,.15); }
+    .card-icon.cyan { background:rgba(6,182,212,.15); }
+    .card-icon.orange { background:rgba(249,115,22,.15); }
+    .card-meta { flex:1; }
+    .card-category { font-size:.68rem; letter-spacing:.15em; color:var(--sub); margin-bottom:3px; text-transform:uppercase; }
+    .card-title { font-size:1rem; font-weight:bold; line-height:1.3; }
+    .card-body { font-size:.83rem; color:rgba(255,255,255,.7); line-height:1.8; margin-bottom:12px; }
+    .card-tags { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px; }
+    .tag { padding:3px 10px; border-radius:12px; font-size:.72rem; font-weight:bold; }
+    .tag.blue { background:rgba(79,142,247,.15); color:var(--blue); }
+    .tag.purple { background:rgba(168,85,247,.15); color:var(--purple); }
+    .tag.green { background:rgba(34,197,94,.15); color:var(--green); }
+    .tag.yellow { background:rgba(245,194,0,.15); color:var(--yellow); }
+    .tag.red { background:rgba(244,63,94,.15); color:var(--red); }
+    .tag.cyan { background:rgba(6,182,212,.15); color:var(--cyan); }
+    .tag.orange { background:rgba(249,115,22,.15); color:var(--orange); }
+    .card-points { list-style:none; }
+    .card-points li { font-size:.8rem; color:rgba(255,255,255,.65); padding:4px 0; display:flex; gap:8px; border-bottom:1px solid var(--border); line-height:1.5; }
+    .card-points li:last-child { border:none; }
+    .card-points li::before { content:'▸'; color:var(--blue); flex-shrink:0; }
+    /* Expand */
+    .card-expand { display:none; margin-top:12px; padding-top:12px; border-top:1px solid var(--border); }
+    .card.expanded .card-expand { display:block; }
+    .expand-btn { font-size:.75rem; color:var(--sub); background:none; border:none; cursor:pointer; font-family:inherit; padding:0; margin-top:8px; }
+    /* Trend card */
+    .trend-card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:18px; margin-bottom:14px; }
+    .trend-header { display:flex; align-items:center; gap:12px; margin-bottom:12px; }
+    .trend-num { width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:.85rem; font-weight:bold; flex-shrink:0; }
+    .trend-title { font-size:1rem; font-weight:bold; }
+    .trend-body { font-size:.83rem; color:rgba(255,255,255,.7); line-height:1.85; }
+    .trend-examples { margin-top:10px; display:flex; flex-wrap:wrap; gap:6px; }
+    /* Stats row */
+    .stats-row { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:20px; }
+    .stat-card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:14px 12px; text-align:center; }
+    .stat-num { font-size:1.4rem; font-weight:900; background:linear-gradient(135deg,var(--blue),var(--purple)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+    .stat-label { font-size:.7rem; color:var(--sub); margin-top:3px; line-height:1.4; }
+    /* Section title */
+    .section-title { font-size:.75rem; letter-spacing:.2em; color:var(--sub); margin-bottom:12px; text-transform:uppercase; }
+    /* No result */
+    .no-result { text-align:center; padding:40px 20px; color:var(--sub); }
+    /* Highlight */
+    .highlight { background:rgba(245,194,0,.2); border-radius:3px; padding:0 2px; color:var(--yellow); }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div class="logo">
+      <div class="logo-icon">🤖</div>
+      <div class="logo-text">
+        AI情報ダッシュボード
+        <span>2025–2026 最新動向</span>
+      </div>
+    </div>
+    <div class="update-badge">2026.03 更新</div>
+  </div>
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input class="search-input" id="searchInput" type="text" placeholder="キーワードで検索...">
+  </div>
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('tools')">🛠 AIツール</button>
+    <button class="tab" onclick="switchTab('business')">💼 ビジネス活用</button>
+    <button class="tab" onclick="switchTab('dev')">💻 アプリ開発</button>
+    <button class="tab" onclick="switchTab('trends')">📈 業界トレンド</button>
+  </div>
+</div>
+
+<div class="body">
+
+<!-- ===== TOOLS ===== -->
+<div class="section active" id="section-tools">
+  <div class="stats-row">
+    <div class="stat-card"><div class="stat-num">200+</div><div class="stat-label">主要AIツール数（2025年）</div></div>
+    <div class="stat-card"><div class="stat-num">$184B</div><div class="stat-label">生成AI市場規模（2025年予測）</div></div>
+    <div class="stat-card"><div class="stat-num">77%</div><div class="stat-label">企業のAI導入検討率</div></div>
+  </div>
+  <div class="filter-row" id="tools-filters">
+    <button class="filter-tag all active" onclick="filterCards('tools','all',this)">すべて</button>
+    <button class="filter-tag" style="border-color:rgba(79,142,247,.4);color:var(--blue)" onclick="filterCards('tools','チャット',this)">チャット</button>
+    <button class="filter-tag" style="border-color:rgba(168,85,247,.4);color:var(--purple)" onclick="filterCards('tools','コーディング',this)">コーディング</button>
+    <button class="filter-tag" style="border-color:rgba(34,197,94,.4);color:var(--green)" onclick="filterCards('tools','画像・動画',this)">画像・動画</button>
+    <button class="filter-tag" style="border-color:rgba(245,194,0,.4);color:var(--yellow)" onclick="filterCards('tools','検索',this)">検索</button>
+    <button class="filter-tag" style="border-color:rgba(6,182,212,.4);color:var(--cyan)" onclick="filterCards('tools','音声',this)">音声</button>
+  </div>
+  <div class="cards-grid" id="tools-grid"></div>
+</div>
+
+<!-- ===== BUSINESS ===== -->
+<div class="section" id="section-business">
+  <div class="stats-row">
+    <div class="stat-card"><div class="stat-num">40%</div><div class="stat-label">業務効率化の平均改善率</div></div>
+    <div class="stat-card"><div class="stat-num">$8B</div><div class="stat-label">AIチャットボットによる年間節約額</div></div>
+    <div class="stat-card"><div class="stat-num">30%</div><div class="stat-label">カスタマー対応時間の削減率</div></div>
+  </div>
+  <div class="filter-row" id="business-filters">
+    <button class="filter-tag all active" onclick="filterCards('business','all',this)">すべて</button>
+    <button class="filter-tag" style="border-color:rgba(79,142,247,.4);color:var(--blue)" onclick="filterCards('business','営業・マーケ',this)">営業・マーケ</button>
+    <button class="filter-tag" style="border-color:rgba(34,197,94,.4);color:var(--green)" onclick="filterCards('business','業務効率化',this)">業務効率化</button>
+    <button class="filter-tag" style="border-color:rgba(168,85,247,.4);color:var(--purple)" onclick="filterCards('business','カスタマー',this)">カスタマー</button>
+    <button class="filter-tag" style="border-color:rgba(249,115,22,.4);color:var(--orange)" onclick="filterCards('business','専門職',this)">専門職</button>
+  </div>
+  <div class="cards-grid" id="business-grid"></div>
+</div>
+
+<!-- ===== DEV ===== -->
+<div class="section" id="section-dev">
+  <div class="stats-row">
+    <div class="stat-card"><div class="stat-num">55%</div><div class="stat-label">AI活用でのコーディング時間削減</div></div>
+    <div class="stat-card"><div class="stat-num">10x</div><div class="stat-label">プロトタイプ開発の速度向上</div></div>
+    <div class="stat-card"><div class="stat-num">92%</div><div class="stat-label">開発者のAIツール利用率（2025年）</div></div>
+  </div>
+  <div class="filter-row" id="dev-filters">
+    <button class="filter-tag all active" onclick="filterCards('dev','all',this)">すべて</button>
+    <button class="filter-tag" style="border-color:rgba(79,142,247,.4);color:var(--blue)" onclick="filterCards('dev','コーディング',this)">コーディング</button>
+    <button class="filter-tag" style="border-color:rgba(168,85,247,.4);color:var(--purple)" onclick="filterCards('dev','エージェント',this)">エージェント</button>
+    <button class="filter-tag" style="border-color:rgba(34,197,94,.4);color:var(--green)" onclick="filterCards('dev','RAG・検索',this)">RAG・検索</button>
+    <button class="filter-tag" style="border-color:rgba(245,194,0,.4);color:var(--yellow)" onclick="filterCards('dev','ノーコード',this)">ノーコード</button>
+  </div>
+  <div class="cards-grid" id="dev-grid"></div>
+</div>
+
+<!-- ===== TRENDS ===== -->
+<div class="section" id="section-trends">
+  <div class="stats-row">
+    <div class="stat-card"><div class="stat-num">GPT-5</div><div class="stat-label">OpenAI 次世代モデル開発中</div></div>
+    <div class="stat-card"><div class="stat-num">AGI?</div><div class="stat-label">複数企業が2025-2027到達を主張</div></div>
+    <div class="stat-card"><div class="stat-num">AI法</div><div class="stat-label">EU AI Act 本格施行 2025年</div></div>
+  </div>
+  <div id="trends-list"></div>
+</div>
+
+</div><!-- /body -->
+
+<script>
+// ==============================
+//  DATA
+// ==============================
+const TOOLS_DATA = [
+  { id:'chatgpt', color:'green', icon:'🟢', iconColor:'green', category:'チャット / テキスト生成',
+    title:'ChatGPT (OpenAI)', tags:[{t:'チャット',c:'green'},{t:'コーディング',c:'purple'},{t:'マルチモーダル',c:'blue'}],
+    body:'世界最大のAIチャットサービス。GPT-4o・o1・o3シリーズを展開。画像・音声・動画の入出力に対応したマルチモーダルAI。月間アクティブユーザー数は3億人超（2025年）。',
+    points:['GPT-4o：テキスト・画像・音声をリアルタイムで処理','o3シリーズ：推論特化型モデル。数学・科学・コーディングで最高水準','ChatGPT Tasks：タスクの自動スケジューリングが可能','カスタムGPTs：誰でも専用AIを作成・公開できる'],
+    expand:'【料金】無料プランあり。Plus $20/月、Pro $200/月。API従量課金。\n【得意分野】文章作成・要約・翻訳・コード生成・データ分析' },
+
+  { id:'claude', color:'purple', icon:'🟣', iconColor:'purple', category:'チャット / 分析',
+    title:'Claude (Anthropic)', tags:[{t:'チャット',c:'purple'},{t:'コーディング',c:'blue'},{t:'長文分析',c:'cyan'}],
+    body:'Anthropicが開発する高性能AIアシスタント。Claude 3.5 / 4系列。最大200K〜1Mトークンのコンテキストウィンドウで、長い書類や論文の分析が得意。安全性・倫理性を重視した設計。',
+    points:['Claude Sonnet 4.6・Opus 4.6：コーディング・分析で業界トップ水準','200K文字超の長文処理（契約書・論文丸ごと分析）','Claude Code：ターミナルから使えるAIコーディングエージェント','アーティファクト機能：コード・図・文書をリアルタイム生成'],
+    expand:'【料金】無料プランあり。Pro $20/月。API従量課金。\n【得意分野】長文分析・コーディング・文書作成・安全性の高い用途' },
+
+  { id:'gemini', color:'blue', icon:'🔵', iconColor:'blue', category:'チャット / マルチモーダル',
+    title:'Gemini (Google)', tags:[{t:'チャット',c:'blue'},{t:'マルチモーダル',c:'green'},{t:'検索',c:'yellow'}],
+    body:'Googleが開発するマルチモーダルAI。Gemini 2.0 Ultra / Flash。Google検索・Gmail・Docs・Sheetsと深く統合されており、Googleユーザーには特に使いやすい。',
+    points:['Gemini 2.0 Flash：超高速・低コストで軽量タスクに最適','Google Workspace統合：メール・資料・スプレッドシートをAIで処理','Project Astra：リアルタイムの動画・音声・画像解析','Deep Research：複数サイトを自動リサーチしてレポート生成'],
+    expand:'【料金】無料プランあり。Advanced（Google One）$19.99/月。\n【得意分野】Googleサービスとの連携・マルチモーダル・リサーチ' },
+
+  { id:'copilot', color:'cyan', icon:'🔷', iconColor:'cyan', category:'コーディング',
+    title:'GitHub Copilot', tags:[{t:'コーディング',c:'cyan'},{t:'IDE統合',c:'blue'}],
+    body:'GitHubとOpenAIが共同開発したAIコードアシスタント。VS Code / JetBrains / Neovimなど主要IDEに対応。コード補完・レビュー・テスト生成・エージェント機能を提供。',
+    points:['コード補完：文脈を理解して1〜数十行のコードを自動提案','Copilot Chat：チャットでコードの説明・デバッグ・リファクタリング','Copilot Workspace：Issue→実装まで自動化するエージェント機能','テスト生成：関数を見てユニットテストを自動作成'],
+    expand:'【料金】個人$10/月。Business $19/月。GitHub Pro含む。\n【得意分野】IDEでのリアルタイムコーディング支援' },
+
+  { id:'cursor', color:'purple', icon:'⚡', iconColor:'purple', category:'コーディング',
+    title:'Cursor', tags:[{t:'コーディング',c:'purple'},{t:'エージェント',c:'blue'}],
+    body:'AIファーストなコードエディタ。VS Codeベースで使い勝手はほぼ同じ。Claude・GPT-4oを搭載し、コードベース全体を理解した提案が可能。2025年最注目の開発ツール。',
+    points:['Composer：自然言語で機能追加・バグ修正を指示して自動実装','コードベース理解：プロジェクト全体を把握した文脈での補完','タブ補完：複数行・複数ファイルにまたがる補完','Agent Mode：タスクを自律的にこなすエージェントとして動作'],
+    expand:'【料金】無料プランあり。Pro $20/月。\n【得意分野】AIに任せたコーディング・大規模リファクタリング' },
+
+  { id:'midjourney', color:'yellow', icon:'🎨', iconColor:'yellow', category:'画像・動画',
+    title:'Midjourney', tags:[{t:'画像・動画',c:'yellow'},{t:'クリエイティブ',c:'orange'}],
+    body:'テキストから高品質な画像を生成するAI。クリエイターや企業のマーケティングに広く活用。V6.1以降は人物・建築・製品ビジュアルの品質が大幅向上。',
+    points:['テキストプロンプトから高品質な画像を数秒で生成','スタイル参照：既存の画像スタイルを参照して生成','Web UI：ブラウザから直接操作可能（Discord不要）','商用利用：有料プランは商用利用OK'],
+    expand:'【料金】Basic $10/月〜。Pro $60/月。\n【用途】広告・SNS画像・概念デザイン・コンセプトアート' },
+
+  { id:'sora', color:'red', icon:'🎬', iconColor:'red', category:'画像・動画',
+    title:'Sora / Runway / Kling', tags:[{t:'画像・動画',c:'red'},{t:'動画生成',c:'orange'}],
+    body:'AI動画生成ツールが急速に進化中。OpenAI Sora・Runway Gen-3・Kling（Kuaishou）・Haiper 2.0などが競争。テキストや画像から最大数分の動画を生成できる。',
+    points:['Sora (OpenAI)：1080p・最大20秒の動画生成、物理法則を理解','Runway Gen-3 Alpha：映像制作プロ向け。VFX・編集機能統合','Kling 2.0：コスパが高く個人利用に人気','Pika 2.0：キャラクターの一貫性保持に強み'],
+    expand:'【用途】広告動画・SNSコンテンツ・映像プロトタイプ・教育コンテンツ\n【注意】著作権・フェイク動画問題への対応が各社で議論中' },
+
+  { id:'perplexity', color:'cyan', icon:'🔍', iconColor:'cyan', category:'検索・リサーチ',
+    title:'Perplexity AI', tags:[{t:'検索',c:'cyan'},{t:'リサーチ',c:'blue'}],
+    body:'AIを使ったリアルタイム検索エンジン。質問に対してWeb検索→要約→出典明示まで自動で行う。Googleの代替として企業のリサーチ業務で急速に普及中。',
+    points:['リアルタイムWeb検索＋AI要約で最新情報を即座に取得','出典リンク付き回答で信頼性確認が容易','Deep Research：長尺の調査レポートを自動生成（数分で数千字）','API提供：自社アプリへの組み込みも可能'],
+    expand:'【料金】無料プランあり。Pro $20/月（Deep Research・画像生成含む）\n【得意分野】最新情報のリサーチ・事実確認・市場調査' },
+
+  { id:'elevenlabs', color:'orange', icon:'🎙️', iconColor:'orange', category:'音声・テキスト読み上げ',
+    title:'ElevenLabs / NotebookLM', tags:[{t:'音声',c:'orange'},{t:'テキスト読み上げ',c:'yellow'}],
+    body:'AI音声技術が急進化。ElevenLabsは自然なテキスト読み上げ・声のクローンが可能。Google NotebookLMはドキュメントをポッドキャスト形式に変換。',
+    points:['ElevenLabs：30言語対応・声のクローン作成・感情表現','NotebookLM Audio Overview：資料を2人の会話形式ポッドキャストに自動変換','Whisper (OpenAI)：高精度な文字起こし・翻訳（無料）','Suno / Udio：テキストから音楽を生成するAI音楽ツール'],
+    expand:'【用途】動画ナレーション・オーディオブック・多言語コンテンツ・議事録作成\n【ElevenLabs料金】無料（1万文字/月）〜Starter $5/月' },
+
+  { id:'notion-ai', color:'blue', icon:'📝', iconColor:'blue', category:'業務効率化',
+    title:'Notion AI / Microsoft Copilot 365', tags:[{t:'チャット',c:'blue'},{t:'業務効率化',c:'green'}],
+    body:'業務ツールへのAI統合が急速に進む。Notion AI・Microsoft 365 Copilot・Slack AI・Google Duet AIなど、使い慣れたツールの中でAIが使える環境が整っている。',
+    points:['Notion AI：ページの要約・翻訳・執筆・データベース操作','Microsoft 365 Copilot：Word・Excel・Teams・Outlookを横断してAI処理','Slack AI：会話の要約・重要点の抽出・チャンネル検索の強化','Google Duet AI：Gmail・スライド・スプレッドシートをAIで支援'],
+    expand:'【Microsoft 365 Copilot料金】$30/ユーザー/月（法人向け）\n【Notion AI】$8/メンバー/月（アドオン）' },
+];
+
+const BUSINESS_DATA = [
+  { id:'cs', color:'blue', icon:'🎧', iconColor:'blue', category:'カスタマーサポート',
+    title:'カスタマーサポートの自動化', tags:[{t:'カスタマー',c:'blue'},{t:'業務効率化',c:'green'},{t:'チャットボット',c:'cyan'}],
+    body:'AI導入により対応コストを最大70%削減しながら、24時間365日のサポートを実現。人間のエージェントは複雑なケースに集中でき、顧客満足度も向上。',
+    points:['メルカリ：AIチャットボットで問い合わせの約60%を自動解決','ソフトバンク：音声AIで通話対応の平均時間を40%短縮','Shopify：AIがショップオーナーの質問にリアルタイム回答','Zendesk AI：感情分析で優先度付けし、エスカレーションを自動化'],
+    expand:'【導入効果の目安】\n・対応コスト：50〜70%削減\n・一次解決率：最大80%\n・対応時間：24時間365日\n\n【ポイント】FAQを学習させたRAGベースのチャットボットが主流。人間との切り替え（ハンドオフ）の設計が重要。' },
+
+  { id:'marketing', color:'orange', icon:'📣', iconColor:'orange', category:'マーケティング',
+    title:'AIマーケティング・コンテンツ生成', tags:[{t:'営業・マーケ',c:'orange'},{t:'コンテンツ生成',c:'yellow'}],
+    body:'広告文・SNS投稿・ブログ・メルマガ・LP制作をAIが支援。制作コストと時間を大幅削減しながら、A/Bテストも自動化できる。',
+    points:['資生堂：AIで商品説明文を自動生成→翻訳→多言語展開を1/10のコストで実現','電通・博報堂：AIで広告クリエイティブの初稿を生成し制作期間を半減','Jasper / Copy.ai：広告文・SNS文章をテンプレート＋AIで大量生成','Adobe Firefly：商用利用安全な学習データで画像・動画素材を生成'],
+    expand:'【活用パターン】\n1. プロンプト→AIで初稿→人間が編集・確認\n2. 複数バリエーションをAIで生成→A/Bテスト自動化\n3. 過去の高成果コンテンツをAIが学習→次回提案\n\n【注意】事実確認・ブランドトーンの維持は人間が確認必須' },
+
+  { id:'legal', color:'purple', icon:'⚖️', iconColor:'purple', category:'法務・コンプライアンス',
+    title:'AI法務・契約書レビュー', tags:[{t:'専門職',c:'purple'},{t:'業務効率化',c:'green'}],
+    body:'契約書のレビュー・リスク分析・条項の比較などをAIが自動化。弁護士の作業時間を大幅削減。LegalOn Technologies（日本）などが国内で急成長中。',
+    points:['LegalOn Technologies：AI契約書レビューツール。国内1,000社超が導入','Harvey AI (米国)：大手法律事務所が採用するAI法務アシスタント','NotionやConfluenceの社内規程をRAGで学習→社員が即座に確認可能','AIによるコンプライアンスチェック：規制文書との照合を自動化'],
+    expand:'【導入効果】\n・契約書レビュー時間：最大80%短縮\n・見落としリスク低減\n・新人弁護士の教育コスト削減\n\n【注意】最終判断は必ず法律の専門家が行うこと。AI単独での法的判断はリスクあり。' },
+
+  { id:'hr', color:'green', icon:'👥', iconColor:'green', category:'HR・採用',
+    title:'AI採用・HR支援', tags:[{t:'業務効率化',c:'green'},{t:'専門職',c:'purple'}],
+    body:'採用スクリーニング・面接質問生成・入社研修・人事評価レポートなど、HR業務全般にAIが活用されている。候補者体験の向上にも貢献。',
+    points:['履歴書スクリーニング：何千通もの応募書類をAIが第一次選考','面接フィードバック：AIが面接内容を文字起こし→評価シートを自動生成','Workday・SAP SuccessFactors：HRシステムへのAI機能統合が加速','オンボーディングAI：入社者の質問にAIチャットボットが24時間対応'],
+    expand:'【活用例（日本企業）】\nリクルート：AIで求人マッチング精度を向上\nパナソニック：AIが人材配置のシミュレーション\nサイバーエージェント：AIで採用面接の文字起こし→評価支援\n\n【注意】採用AIのバイアス問題への対策が必要。多様性・公平性の観点から人間によるレビューが不可欠。' },
+
+  { id:'finance', color:'yellow', icon:'💹', iconColor:'yellow', category:'金融・会計',
+    title:'AI金融・会計業務', tags:[{t:'専門職',c:'yellow'},{t:'業務効率化',c:'green'}],
+    body:'金融業界はAI活用の最前線。投資分析・リスク管理・不正検知・決算書作成など広範な業務でAIが活躍。ブルームバーグやブラックロックなど大手が積極投資中。',
+    points:['BloombergGPT：金融特化型LLM。市場分析・ニュース要約に活用','BlackRock：AIで数千のポートフォリオを同時にリスク分析','freee / マネーフォワード：AIで仕訳・経費精算を自動化','三菱UFJ・みずほ：行内のAIチャットボット（数万人規模）導入済み'],
+    expand:'【日本金融機関の動向】\n・行内文書のAI検索・要約が普及\n・融資審査にAI活用（中小企業向け）\n・不正検知システムのAI高度化\n\n【注意】金融規制・個人情報保護との整合が重要。社内専用環境での運用が基本。' },
+
+  { id:'medical', color:'red', icon:'🏥', iconColor:'red', category:'医療・ヘルスケア',
+    title:'AI医療・ヘルスケア', tags:[{t:'専門職',c:'red'},{t:'業務効率化',c:'green'}],
+    body:'医療診断の支援・カルテ作成の自動化・創薬研究の加速など、医療分野でのAI活用が急拡大。Google・Microsoft・各製薬会社が競争。',
+    points:['Google Med-Gemini：医療画像診断でのAI支援（眼科・皮膚科・放射線）','Microsoft DAX Copilot：診療中の会話からカルテを自動生成','AlphaFold 3 (Google DeepMind)：タンパク質構造予測で創薬を加速','オムロンヘルスケア：ウェアラブルデータをAIで分析し生活習慣病予測'],
+    expand:'【日本での動向】\nNTTデータ・富士通：病院向けAIカルテシステム\n大阪大学：AIによるがんの早期発見支援\n東京大学病院：AIが診断レポートの初稿を自動生成\n\n【注意】医療AIは薬機法・医師法などの規制対象。承認プロセスが必要なケースが多い。' },
+
+  { id:'mfg', color:'cyan', icon:'🏭', iconColor:'cyan', category:'製造・物流',
+    title:'AI製造・物流最適化', tags:[{t:'業務効率化',c:'cyan'},{t:'専門職',c:'blue'}],
+    body:'製造業では品質検査・需要予測・設備の予知保全などにAIを活用。物流では配送ルート最適化・在庫管理の自動化が進む。',
+    points:['トヨタ：AI品質検査で不良品検出率を大幅向上・検査員の負担軽減','パナソニック・キオクシア：工場のAI設備管理（予知保全）導入','Amazon：AIロボット＋需要予測で倉庫効率を40%以上改善','日本郵便：AIで配送ルートを自動最適化。CO₂排出削減にも貢献'],
+    expand:'【製造業AI活用3パターン】\n1. 品質検査（画像認識AI）\n2. 予知保全（センサーデータ分析）\n3. 需要予測（生産計画の最適化）\n\n【課題】レガシーシステムとの統合・現場作業員のリスキリングが必要' },
+
+  { id:'edu', color:'green', icon:'📚', iconColor:'green', category:'教育・研修',
+    title:'AI教育・人材育成', tags:[{t:'業務効率化',c:'green'},{t:'カスタマー',c:'blue'}],
+    body:'個別最適化された学習体験をAIが提供。企業研修・学習コンテンツ制作・試験対策まで幅広く活用。教育業界が大きく変わりつつある。',
+    points:['Khan Academy Khanmigo：AIチューターが生徒一人ひとりに個別指導','Duolingo Max：AIで文法説明・ロールプレイ会話練習を自動生成','スタディサプリ：AIが学習進捗を分析し弱点を自動検出','社内研修：AI動画・音声生成ツールで研修動画制作コストを90%削減'],
+    expand:'【日本の教育AIトレンド】\n・文科省：生成AI活用の学習指針を発表\n・各大学：AIツール使用ポリシーを整備中\n・企業研修：AIロールプレイによる営業・接客訓練が普及\n\n【ポイント】AIはコーチ・ティーターとして人間の学習を補完する位置づけ' },
+];
+
+const DEV_DATA = [
+  { id:'rag', color:'blue', icon:'🔍', iconColor:'blue', category:'RAGアプリ',
+    title:'RAG（検索拡張生成）アプリ開発', tags:[{t:'RAG・検索',c:'blue'},{t:'エージェント',c:'purple'}],
+    body:'社内ドキュメントや独自データをベースにしたAIチャットボットの構築手法。ファインチューニングなしにLLMに自社データを活用させる最も実用的なアプローチ。',
+    points:['仕組み：ユーザーの質問→関連文書を検索→LLMに文書＋質問を渡す→回答生成','LangChain / LlamaIndex：RAGパイプライン構築の定番フレームワーク','ベクターDB：Pinecone・Weaviate・Chroma・Supabase（pg vector）','Dify：ノーコードでRAGアプリを構築できるOSSプラットフォーム'],
+    expand:'【開発ステップ】\n1. ドキュメント収集・前処理（PDF・Word・CSV→テキスト化）\n2. テキストをチャンク分割（500〜1000トークン程度）\n3. 埋め込みモデルでベクター化→DBに保存\n4. LLMとRAGパイプラインを接続\n5. チャットUIを構築\n\n【コスト目安】小規模RAGアプリ：月$50〜$200程度（API料金含む）' },
+
+  { id:'agent', color:'purple', icon:'🤖', iconColor:'purple', category:'AIエージェント',
+    title:'AIエージェント開発', tags:[{t:'エージェント',c:'purple'},{t:'自動化',c:'blue'}],
+    body:'複数のツールや情報源を自律的に使いながらタスクを達成するAIシステム。2025年は「エージェント元年」と呼ばれ、最も注目される開発分野。',
+    points:['LangGraph：ステートフルなマルチエージェントシステムの構築','AutoGen (Microsoft)：複数AIエージェントが連携して問題を解くフレームワーク','CrewAI：役割分担したエージェントチームを簡単に構築','Claude Code / OpenAI Agents SDK：コーディングエージェントの標準化が進む'],
+    expand:'【エージェントの使用例】\n・調査エージェント：Web検索→情報整理→レポート作成\n・コーディングエージェント：要件→設計→実装→テストを自動実行\n・営業エージェント：顧客情報収集→提案資料作成→メール送信\n\n【2025年のトレンド】マルチエージェント（複数AIが協調）・コンピューター操作エージェント（CUA）が急増' },
+
+  { id:'llmapp', color:'green', icon:'⚙️', iconColor:'green', category:'LLMアプリ開発',
+    title:'LLMアプリ開発の基本スタック', tags:[{t:'コーディング',c:'green'},{t:'RAG・検索',c:'blue'}],
+    body:'生成AIを組み込んだアプリ開発に必要な技術スタックが標準化されてきた。フロントエンドからバックエンドまでのエコシステムを把握しよう。',
+    points:['フロントエンド：Next.js + Vercel AI SDK（ストリーミングUI対応）','バックエンド：FastAPI（Python）または Hono（TypeScript）','LLM API：Anthropic / OpenAI / Google Gemini APIを用途に応じて選択','プロンプト管理：Langsmith・PromptLayer でプロンプトのバージョン管理'],
+    expand:'【スタック構成例（スタートアップ向け）】\nUI: Next.js 15 + Tailwind CSS\nAPI: Next.js API Routes or Vercel Serverless\nLLM: Claude API or OpenAI API\nDB: Supabase（PostgreSQL + ベクター検索）\nデプロイ: Vercel\n認証: Clerk or Supabase Auth\n\n【月額コスト目安（小規模）】Vercel Pro $20 + Supabase Pro $25 + API料金 $50〜$200' },
+
+  { id:'fineTuning', color:'yellow', icon:'🎯', iconColor:'yellow', category:'ファインチューニング',
+    title:'ファインチューニング vs RAG', tags:[{t:'コーディング',c:'yellow'},{t:'RAG・検索',c:'blue'}],
+    body:'自社データにAIを特化させる2大アプローチ。ほとんどのユースケースではRAGが推奨されるが、専門用語・特定スタイルへの最適化にはファインチューニングが有効。',
+    points:['RAG：知識の追加・更新が容易。コストが低く、ほとんどのケースに適する','ファインチューニング：特定のトーン・形式・専門知識への強化に有効','OpenAI Fine-tuning：GPT-4o miniのファインチューニングAPIが利用可能','LoRA・QLoRA：オープンソースモデルを少ないGPUでファインチューニングする手法'],
+    expand:'【どちらを選ぶ？】\nRAGを選ぶべきケース：\n・最新情報を参照したい\n・データが頻繁に更新される\n・コストを抑えたい\n\nファインチューニングを選ぶべきケース：\n・特定の文体・フォーマットを学習させたい\n・専門用語の理解を深めたい\n・RAGでは対応しきれない品質が必要' },
+
+  { id:'nocode', color:'cyan', icon:'🧩', iconColor:'cyan', category:'ノーコード・ローコード',
+    title:'ノーコードAIアプリ開発', tags:[{t:'ノーコード',c:'cyan'},{t:'自動化',c:'green'}],
+    body:'プログラミングなしにAIアプリを構築できるツールが急増。個人事業主・中小企業でも本格的なAI活用が可能になっている。',
+    points:['Dify：RAGアプリ・チャットボット・エージェントをGUIで構築。OSSで自己ホスト可','n8n / Zapier：AIワークフロー自動化。メール→AI処理→Slack通知などを連携','Voiceflow：カスタマーサポートAIを直感的なフローで構築','Bubble + AI Plugin：ノーコードWebアプリにAI機能を追加'],
+    expand:'【個人・中小企業向けおすすめ構成】\n自動化ワークフロー：n8n（セルフホスト無料）\nチャットボット：Dify（セルフホスト無料）\n画像生成：ComfyUI（ローカル無料）\n文書処理：Notion AI + Make\n\n【n8nでできる自動化例】\nGmail受信→AIで分類・返信案生成→Slack通知→承認後送信' },
+
+  { id:'localai', color:'red', icon:'💻', iconColor:'red', category:'ローカルAI',
+    title:'ローカルAI・プライベートLLM', tags:[{t:'コーディング',c:'red'},{t:'プライバシー',c:'purple'}],
+    body:'自社サーバー・PCで動かすオープンソースLLM。コストゼロ・プライバシー保護・インターネット不要のため、機密情報を扱う企業で急速に普及中。',
+    points:['Ollama：Mac/Windows/LinuxでLlamaやGemmaをワンコマンド起動','主要モデル：Llama 3.3 70B・Gemma 3・Mistral・Qwen 2.5（日本語対応）','Open WebUI：ChatGPTライクなUIをローカルLLMの上に構築','LM Studio：GUIでモデルを管理・実行できる初心者向けツール'],
+    expand:'【必要スペック目安（7Bモデル）】\nRAM：16GB以上（M2 Mac以上で快適）\nGPU：RTX 3060 12GB以上（Windows）\n\n【70Bモデルの場合】\nRAM：64GB以上、または高VRAM GPU\n\n【企業での活用】\n社内文書の検索（RAG）・コード補完・議事録作成など\nプライバシー要件が高い業界（医療・法務・金融）で注目' },
+
+  { id:'claudecode', color:'purple', icon:'🔧', iconColor:'purple', category:'AIコーディング',
+    title:'Claude Code・Devin・SWE-agent', tags:[{t:'コーディング',c:'purple'},{t:'エージェント',c:'blue'}],
+    body:'「AIがコードを書く」から「AIがソフトウェアを開発する」時代へ。コーディングエージェントが急速に実用化されている。',
+    points:['Claude Code：ターミナルから動くAI開発エージェント。ファイル編集・テスト・Git操作を自動化','Devin (Cognition)：世界初の「AIソフトウェアエンジニア」。タスクを与えると自律開発','SWE-bench：AIの実際のバグ修正能力を測るベンチマーク（2025年急上昇）','v0 (Vercel)：テキスト→UIコンポーネントを即座に生成するフロントエンドAI'],
+    expand:'【Claude Code ユースケース】\n・既存コードのリファクタリング\n・バグの調査と修正\n・テストコードの自動生成\n・ドキュメント作成\n・GitHubとの連携でPRの自動作成\n\n【現状の課題】\n長時間・大規模タスクではまだ人間のレビューが必要\nセキュリティ・権限管理に注意' },
+];
+
+const TRENDS_DATA = [
+  { num:'01', color:'var(--blue)', title:'AIエージェント元年 ── 自律的に動くAIへ', body:'単純な質問応答から「自律的にタスクを実行するAI」への移行が2025年の最大トレンド。メール処理・Web操作・コーディング・情報収集を人間の代わりに実行するエージェントが急増。OpenAI・Anthropic・Google・Microsoftが競って「AIエージェントフレームワーク」を発表中。', tags:[{t:'エージェント',c:'blue'},{t:'自動化',c:'cyan'}] },
+  { num:'02', color:'var(--purple)', title:'マルチモーダルAIの標準化', body:'テキスト・画像・音声・動画・PDFを一つのモデルで扱えるマルチモーダルAIが標準に。GPT-4o・Gemini 2.0・Claude 3.5が複数メディアを横断した処理を提供。「画像を見て説明する」だけでなく「動画を分析してレポートを書く」ことが日常的になってきた。', tags:[{t:'マルチモーダル',c:'purple'},{t:'画像・動画',c:'green'}] },
+  { num:'03', color:'var(--green)', title:'オープンソースAIの急成長', body:'Meta（Llama 3.3）・Google（Gemma 3）・Mistral・Qwen（Alibaba）などのオープンソースモデルがGPT-4に迫る性能に。企業は商用APIに縛られず、自社サーバーで動かせる選択肢が増えた。プライバシー・コスト・カスタマイズ性の観点からローカルAIの採用が急増。', tags:[{t:'オープンソース',c:'green'},{t:'ローカルAI',c:'cyan'}] },
+  { num:'04', color:'var(--yellow)', title:'AI規制・ガバナンスの本格化', body:'EU AI Act（2025年本格施行）を皮切りに、各国でAI規制が整備される。高リスクAI（採用・医療・信用審査など）は審査・認証が必要に。日本も「AI事業者ガイドライン」を整備中。企業はAIの透明性・説明責任・バイアス対策への投資が必須になる。', tags:[{t:'規制・法律',c:'yellow'},{t:'ガバナンス',c:'orange'}] },
+  { num:'05', color:'var(--red)', title:'AGI論争と推論モデルの台頭', body:'OpenAI o3・o1などの「推論モデル」が数学・科学・コーディングで人間の専門家レベルを超えるスコアを達成。各社がAGI（汎用人工知能）への到達時期を2025〜2027年と主張し始めた。一方で研究者からは懐疑論も多く、定義・評価方法を巡る議論が継続中。', tags:[{t:'AGI',c:'red'},{t:'推論AI',c:'purple'}] },
+  { num:'06', color:'var(--cyan)', title:'日本のAI国家戦略と企業の動き', body:'日本政府は「AI戦略2025」を策定し、生成AI分野への大型投資を表明。Sakana AI・PFN・NEC・富士通などの国産AI開発が加速。一方で米国・中国との差を埋めるため、海外モデルの活用と国産モデルの育成を並行して進める方針。', tags:[{t:'日本のAI',c:'cyan'},{t:'国産LLM',c:'blue'}] },
+  { num:'07', color:'var(--orange)', title:'AI PC・デバイスへのAI統合', body:'Apple M4・Qualcomm Snapdragon X EliteなどのNPU（AIチップ）を搭載したAI PCが普及。オフラインで動くローカルAIが身近に。Microsoft Copilot+ PC・Apple Intelligence（Siri刷新）が2025年に本格展開。スマホでもGemini Nano・Phi-3が端末上で動作。', tags:[{t:'AI PC',c:'orange'},{t:'ハードウェア',c:'yellow'}] },
+  { num:'08', color:'var(--green)', title:'AIによるコンテンツ真偽問題と対策', body:'AIが生成するフェイク画像・動画・音声（ディープフェイク）の問題が深刻化。C2PA（Content Credentials）など、コンテンツの出所を証明する技術規格が普及中。Adobeはすべての製品でContent Credentialsに対応予定。各国政府がディープフェイク規制法を整備中。', tags:[{t:'フェイク対策',c:'green'},{t:'コンテンツ真偽',c:'yellow'}] },
+  { num:'09', color:'var(--blue)', title:'生成AIコスト競争の激化', body:'GPT-4oの登場から約1年で、同等性能のAIコストが10分の1以下に低下。「AIの民主化」が加速し、スタートアップ・中小企業でも本格的なAIアプリ開発が現実的になった。Anthropic・OpenAI・Googleに加え、中国Deepseek・XAI Grokなどが競争に参入し価格破壊が続く。', tags:[{t:'コスト低下',c:'blue'},{t:'競争激化',c:'red'}] },
+  { num:'10', color:'var(--purple)', title:'AIとサステナビリティの課題', body:'大規模AI学習・推論に使われる電力・水の消費量が急増し環境負荷が問題に。MicrosoftはAIデータセンター建設に向け原子力発電所の再稼働を発表。一方でAI自体も電力網の最適化・気候変動対策研究に活用されており、「AIが問題であり解決策でもある」という複雑な構図に。', tags:[{t:'環境・電力',c:'purple'},{t:'サステナビリティ',c:'green'}] },
+];
+
+// ==============================
+//  RENDER
+// ==============================
+function renderCards(data, containerId) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = '';
+  if (data.length === 0) {
+    container.innerHTML = '<div class="no-result">🔍 該当する情報がありません</div>';
+    return;
+  }
+  data.forEach(item => {
+    const div = document.createElement('div');
+    div.className = `card ${item.color}`;
+    div.dataset.tags = item.tags.map(t=>t.t).join(',');
+    div.dataset.text = (item.title + item.body + item.points.join(' ')).toLowerCase();
+    div.innerHTML = `
+      <div class="card-header">
+        <div class="card-icon ${item.iconColor}">${item.icon}</div>
+        <div class="card-meta">
+          <div class="card-category">${item.category}</div>
+          <div class="card-title">${item.title}</div>
+        </div>
+      </div>
+      <div class="card-body">${item.body}</div>
+      <div class="card-tags">${item.tags.map(t=>`<span class="tag ${t.c}">${t.t}</span>`).join('')}</div>
+      <ul class="card-points">${item.points.map(p=>`<li>${p}</li>`).join('')}</ul>
+      ${item.expand ? `
+        <div class="card-expand"><pre style="white-space:pre-wrap;font-family:inherit;font-size:.8rem;color:rgba(255,255,255,.65);line-height:1.8">${item.expand}</pre></div>
+        <button class="expand-btn" onclick="toggleExpand(this)">▼ 詳細を見る</button>
+      ` : ''}
+    `;
+    container.appendChild(div);
+  });
+}
+
+function renderTrends() {
+  const container = document.getElementById('trends-list');
+  container.innerHTML = '';
+  TRENDS_DATA.forEach(t => {
+    const div = document.createElement('div');
+    div.className = 'trend-card';
+    div.dataset.text = (t.title + t.body).toLowerCase();
+    div.innerHTML = `
+      <div class="trend-header">
+        <div class="trend-num" style="background:${t.color}22;color:${t.color}">${t.num}</div>
+        <div class="trend-title">${t.title}</div>
+      </div>
+      <div class="trend-body">${t.body}</div>
+      <div class="trend-examples">${t.tags.map(tg=>`<span class="tag ${tg.c}">${tg.t}</span>`).join('')}</div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function toggleExpand(btn) {
+  const card = btn.closest('.card');
+  const isExpanded = card.classList.toggle('expanded');
+  btn.textContent = isExpanded ? '▲ 閉じる' : '▼ 詳細を見る';
+}
+
+// ==============================
+//  TAB SWITCH
+// ==============================
+let currentTab = 'tools';
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById(`section-${tab}`).classList.add('active');
+  // Reset search
+  document.getElementById('searchInput').value = '';
+  if (tab !== 'trends') {
+    document.querySelectorAll(`#${tab}-filters .filter-tag`).forEach(t => t.classList.remove('active'));
+    document.querySelector(`#${tab}-filters .all`).classList.add('active');
+  }
+  performSearch('');
+}
+
+// ==============================
+//  FILTER
+// ==============================
+function filterCards(section, tag, btn) {
+  document.querySelectorAll(`#${section}-filters .filter-tag`).forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  const grid = document.getElementById(`${section}-grid`);
+  const cards = grid.querySelectorAll('.card');
+  cards.forEach(card => {
+    if (tag === 'all') { card.style.display = ''; return; }
+    card.style.display = card.dataset.tags.includes(tag) ? '' : 'none';
+  });
+}
+
+// ==============================
+//  SEARCH
+// ==============================
+function performSearch(q) {
+  const lower = q.toLowerCase();
+  const tab = currentTab;
+  if (tab === 'trends') {
+    document.querySelectorAll('#trends-list .trend-card').forEach(card => {
+      card.style.display = !lower || card.dataset.text.includes(lower) ? '' : 'none';
+    });
+    return;
+  }
+  const grid = document.getElementById(`${tab}-grid`);
+  if (!grid) return;
+  grid.querySelectorAll('.card').forEach(card => {
+    card.style.display = !lower || card.dataset.text.includes(lower) ? '' : 'none';
+  });
+  // reset filter
+  if (lower) {
+    document.querySelectorAll(`#${tab}-filters .filter-tag`).forEach(t => t.classList.remove('active'));
+  }
+}
+
+document.getElementById('searchInput').addEventListener('input', e => performSearch(e.target.value));
+
+// ==============================
+//  INIT
+// ==============================
+renderCards(TOOLS_DATA, 'tools-grid');
+renderCards(BUSINESS_DATA, 'business-grid');
+renderCards(DEV_DATA, 'dev-grid');
+renderTrends();
+</script>
+</body>
+</html>
