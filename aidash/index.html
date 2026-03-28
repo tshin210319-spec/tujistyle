@@ -103,6 +103,44 @@
     .no-result { text-align:center; padding:40px 20px; color:var(--sub); }
     /* Highlight */
     .highlight { background:rgba(245,194,0,.2); border-radius:3px; padding:0 2px; color:var(--yellow); }
+    /* ===== NEWS ===== */
+    .news-source-tabs { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px; }
+    .news-src-btn { padding:5px 14px; border-radius:20px; font-size:.78rem; cursor:pointer; border:1px solid rgba(255,255,255,.15); background:transparent; color:var(--sub); font-family:inherit; transition:all .15s; }
+    .news-src-btn.active { background:rgba(79,142,247,.15); border-color:rgba(79,142,247,.5); color:var(--blue); }
+    .news-loading { text-align:center; padding:40px; color:var(--sub); }
+    .news-loading .spin { display:inline-block; animation:spin 1s linear infinite; font-size:1.5rem; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .news-list { display:flex; flex-direction:column; gap:12px; }
+    .news-item { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:16px; display:flex; gap:14px; text-decoration:none; color:var(--text); transition:transform .15s,box-shadow .15s; }
+    .news-item:hover { transform:translateY(-2px); box-shadow:0 6px 24px rgba(0,0,0,.4); }
+    .news-thumb { width:80px; height:64px; border-radius:10px; object-fit:cover; flex-shrink:0; background:var(--card2); }
+    .news-thumb-placeholder { width:80px; height:64px; border-radius:10px; background:var(--card2); display:flex; align-items:center; justify-content:center; font-size:1.6rem; flex-shrink:0; }
+    .news-info { flex:1; min-width:0; }
+    .news-source-badge { font-size:.68rem; color:var(--blue); font-weight:bold; letter-spacing:.1em; margin-bottom:4px; }
+    .news-title { font-size:.88rem; font-weight:bold; line-height:1.4; margin-bottom:6px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+    .news-date { font-size:.72rem; color:var(--sub); }
+    .news-desc { font-size:.78rem; color:var(--sub); line-height:1.6; margin-top:4px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+    .news-error { background:rgba(244,63,94,.08); border:1px solid rgba(244,63,94,.2); border-radius:12px; padding:16px; font-size:.85rem; color:rgba(255,255,255,.6); text-align:center; }
+    /* YouTube section */
+    .yt-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:12px; margin-bottom:24px; }
+    .yt-card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:14px 12px; text-align:center; text-decoration:none; color:var(--text); transition:transform .15s,box-shadow .15s; display:block; }
+    .yt-card:hover { transform:translateY(-3px); box-shadow:0 6px 20px rgba(0,0,0,.4); border-color:rgba(255,70,70,.3); }
+    .yt-icon { font-size:2rem; margin-bottom:8px; }
+    .yt-name { font-size:.82rem; font-weight:bold; margin-bottom:4px; }
+    .yt-desc { font-size:.7rem; color:var(--sub); line-height:1.5; }
+    .yt-badge { display:inline-block; margin-top:6px; padding:2px 8px; background:rgba(255,70,70,.15); border-radius:10px; font-size:.68rem; color:#ff4646; }
+    /* X/Twitter section */
+    .x-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:12px; }
+    .x-card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:16px; text-decoration:none; color:var(--text); display:block; transition:transform .15s,box-shadow .15s; }
+    .x-card:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(0,0,0,.4); border-color:rgba(29,161,242,.3); }
+    .x-handle { font-size:.85rem; color:#1da1f2; font-weight:bold; margin-bottom:4px; }
+    .x-name { font-size:.9rem; font-weight:bold; margin-bottom:6px; }
+    .x-desc { font-size:.75rem; color:var(--sub); line-height:1.6; }
+    .x-tags { display:flex; flex-wrap:wrap; gap:4px; margin-top:8px; }
+    .section-sub-title { font-size:.75rem; letter-spacing:.2em; color:var(--sub); margin:20px 0 12px; text-transform:uppercase; display:flex; align-items:center; gap:8px; }
+    .section-sub-title::after { content:''; flex:1; height:1px; background:var(--border); }
+    .reload-btn { background:rgba(79,142,247,.1); border:1px solid rgba(79,142,247,.3); color:var(--blue); padding:6px 16px; border-radius:20px; font-size:.78rem; cursor:pointer; font-family:inherit; transition:background .15s; }
+    .reload-btn:hover { background:rgba(79,142,247,.2); }
   </style>
 </head>
 <body>
@@ -123,10 +161,12 @@
     <input class="search-input" id="searchInput" type="text" placeholder="キーワードで検索...">
   </div>
   <div class="tabs">
-    <button class="tab active" onclick="switchTab('tools')">🛠 AIツール</button>
-    <button class="tab" onclick="switchTab('business')">💼 ビジネス活用</button>
-    <button class="tab" onclick="switchTab('dev')">💻 アプリ開発</button>
-    <button class="tab" onclick="switchTab('trends')">📈 業界トレンド</button>
+    <button class="tab active" onclick="switchTab('tools',this)">🛠 AIツール</button>
+    <button class="tab" onclick="switchTab('business',this)">💼 ビジネス活用</button>
+    <button class="tab" onclick="switchTab('dev',this)">💻 アプリ開発</button>
+    <button class="tab" onclick="switchTab('trends',this)">📈 業界トレンド</button>
+    <button class="tab" onclick="switchTab('news',this)">📰 ニュース</button>
+    <button class="tab" onclick="switchTab('media',this)">▶ YouTube / X</button>
   </div>
 </div>
 
@@ -192,6 +232,43 @@
     <div class="stat-card"><div class="stat-num">AI法</div><div class="stat-label">EU AI Act 本格施行 2025年</div></div>
   </div>
   <div id="trends-list"></div>
+</div>
+
+<!-- ===== NEWS ===== -->
+<div class="section" id="section-news">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+    <div style="font-size:.8rem;color:var(--sub)">📡 ページを開くたびに最新記事を自動取得</div>
+    <button class="reload-btn" onclick="loadNews(currentNewsSource)">🔄 再取得</button>
+  </div>
+  <div class="news-source-tabs">
+    <button class="news-src-btn active" onclick="loadNews('techcrunch',this)">TechCrunch AI</button>
+    <button class="news-src-btn" onclick="loadNews('verge',this)">The Verge AI</button>
+    <button class="news-src-btn" onclick="loadNews('venturebeat',this)">VentureBeat</button>
+    <button class="news-src-btn" onclick="loadNews('itmedia',this)">ITmedia AI</button>
+    <button class="news-src-btn" onclick="loadNews('gigazine',this)">Gigazine</button>
+    <button class="news-src-btn" onclick="loadNews('mit',this)">MIT Tech Review</button>
+  </div>
+  <div id="news-container">
+    <div class="news-loading"><div class="spin">⚙️</div><div style="margin-top:12px;font-size:.85rem">ニュースを取得中...</div></div>
+  </div>
+</div>
+
+<!-- ===== MEDIA (YouTube / X) ===== -->
+<div class="section" id="section-media">
+  <!-- YouTube -->
+  <div class="section-sub-title">▶ YouTube おすすめチャンネル</div>
+  <div class="yt-grid" id="yt-grid"></div>
+
+  <!-- X -->
+  <div class="section-sub-title" style="margin-top:8px">𝕏 フォロー推奨アカウント</div>
+  <div class="x-grid" id="x-grid"></div>
+
+  <div style="margin-top:20px;padding:14px;background:var(--card);border-radius:12px;font-size:.78rem;color:var(--sub);line-height:1.8;">
+    💡 <strong style="color:var(--text)">使い方のヒント：</strong><br>
+    各カードをタップするとアカウント・チャンネルページが開きます。<br>
+    YouTubeは「通知ベル🔔」をオンにすると新着動画が届きます。<br>
+    Xはリストに追加しておくとタイムラインが整理されます。
+  </div>
 </div>
 
 </div><!-- /body -->
@@ -430,20 +507,141 @@ function toggleExpand(btn) {
 }
 
 // ==============================
+//  NEWS DATA
+// ==============================
+const NEWS_SOURCES = {
+  techcrunch: { name:'TechCrunch AI', url:'https://techcrunch.com/category/artificial-intelligence/feed/', emoji:'🟢' },
+  verge:      { name:'The Verge AI',  url:'https://www.theverge.com/rss/ai-artificial-intelligence/index.xml', emoji:'🔵' },
+  venturebeat:{ name:'VentureBeat',   url:'https://venturebeat.com/category/ai/feed/', emoji:'🟣' },
+  itmedia:    { name:'ITmedia AI',    url:'https://rss.itmedia.co.jp/rss/2.0/aiplus.xml', emoji:'🔴' },
+  gigazine:   { name:'Gigazine',      url:'https://gigazine.net/news/rss_2.0/', emoji:'🟠' },
+  mit:        { name:'MIT Tech Review',url:'https://www.technologyreview.com/feed/', emoji:'⚪' },
+};
+
+let currentNewsSource = 'techcrunch';
+let newsSourceBtn = null;
+
+async function loadNews(sourceKey, btn) {
+  currentNewsSource = sourceKey;
+  if (btn) {
+    document.querySelectorAll('.news-src-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+  const src = NEWS_SOURCES[sourceKey];
+  const container = document.getElementById('news-container');
+  container.innerHTML = `<div class="news-loading"><div class="spin">⚙️</div><div style="margin-top:12px;font-size:.85rem">${src.name} を取得中...</div></div>`;
+
+  try {
+    const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(src.url)}&count=20`;
+    const res = await fetch(apiUrl);
+    if (!res.ok) throw new Error('fetch failed');
+    const data = await res.json();
+    if (data.status !== 'ok' || !data.items?.length) throw new Error('no items');
+    renderNews(data.items, src.name);
+  } catch(e) {
+    container.innerHTML = `<div class="news-error">
+      ⚠️ ニュースの取得に失敗しました。<br>
+      ネットワーク環境を確認して「🔄 再取得」ボタンを押してください。<br>
+      <small style="opacity:.6;display:block;margin-top:8px">または直接 <a href="https://techcrunch.com/category/artificial-intelligence/" style="color:var(--blue)" target="_blank">TechCrunch AI</a> をご覧ください。</small>
+    </div>`;
+  }
+}
+
+function renderNews(items, sourceName) {
+  const container = document.getElementById('news-container');
+  container.innerHTML = `<div style="font-size:.75rem;color:var(--sub);margin-bottom:12px;">📰 ${sourceName} — ${items.length}件の記事 （取得: ${new Date().toLocaleTimeString('ja-JP')}）</div><div class="news-list" id="news-list"></div>`;
+  const list = document.getElementById('news-list');
+  items.forEach(item => {
+    const date = item.pubDate ? new Date(item.pubDate).toLocaleDateString('ja-JP',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}) : '';
+    const desc = item.description ? item.description.replace(/<[^>]*>/g,'').slice(0,100) : '';
+    const thumb = item.thumbnail || item.enclosure?.link || '';
+    const a = document.createElement('a');
+    a.className = 'news-item';
+    a.href = item.link;
+    a.target = '_blank';
+    a.rel = 'noopener';
+    a.innerHTML = `
+      ${thumb ? `<img class="news-thumb" src="${thumb}" alt="" onerror="this.style.display='none'">` : `<div class="news-thumb-placeholder">📄</div>`}
+      <div class="news-info">
+        <div class="news-source-badge">${sourceName}</div>
+        <div class="news-title">${item.title || ''}</div>
+        ${desc ? `<div class="news-desc">${desc}...</div>` : ''}
+        <div class="news-date">${date}</div>
+      </div>
+    `;
+    list.appendChild(a);
+  });
+}
+
+// ==============================
+//  YOUTUBE DATA
+// ==============================
+const YT_CHANNELS = [
+  { name:'Two Minute Papers', desc:'論文をわかりやすく解説。最新AI研究を2分でキャッチ', url:'https://www.youtube.com/@TwoMinutePapers', emoji:'📄', badge:'研究解説' },
+  { name:'Andrej Karpathy', desc:'OpenAI元研究者。LLMの仕組みを深く学べる', url:'https://www.youtube.com/@AndrejKarpathy', emoji:'🧠', badge:'技術・深い' },
+  { name:'AI Explained', desc:'AI最新ニュース・論文をバランスよく解説', url:'https://www.youtube.com/@aiexplained-official', emoji:'🔍', badge:'ニュース' },
+  { name:'Yannic Kilcher', desc:'ML論文の詳細解説。研究者・エンジニア向け', url:'https://www.youtube.com/@YannicKilcher', emoji:'📊', badge:'論文解説' },
+  { name:'Matt Wolfe', desc:'最新AIツール・サービスの実用レビュー', url:'https://www.youtube.com/@mreflow', emoji:'🛠', badge:'ツール紹介' },
+  { name:'Fireship', desc:'開発者向け。AI活用コードとトレンドを短く解説', url:'https://www.youtube.com/@Fireship', emoji:'🔥', badge:'開発者向け' },
+  { name:'AI Samurai 🎌', desc:'日本語でAIビジネス・ツール活用を解説', url:'https://www.youtube.com/@aisamurai-jp', emoji:'⚔️', badge:'日本語' },
+  { name:'生成AI活用チャンネル', desc:'ChatGPT・Claude等の日本語実用解説', url:'https://www.youtube.com/results?search_query=%E7%94%9F%E6%88%90AI+%E6%B4%BB%E7%94%A8+%E3%83%81%E3%83%A5%E3%83%BC%E3%83%88%E3%83%AA%E3%82%A2%E3%83%AB', emoji:'🇯🇵', badge:'日本語' },
+];
+
+const X_ACCOUNTS = [
+  { handle:'@sama', name:'Sam Altman', desc:'OpenAI CEO。GPT最新情報・AI業界の動向を発信', tags:['OpenAI','業界動向'], url:'https://x.com/sama' },
+  { handle:'@AnthropicAI', name:'Anthropic', desc:'Claude開発元の公式。モデル更新・研究発表', tags:['Claude','安全性'], url:'https://x.com/AnthropicAI' },
+  { handle:'@GoogDeepMind', name:'Google DeepMind', desc:'Gemini・AlphaFold等の研究発表', tags:['Google','研究'], url:'https://x.com/GoogleDeepMind' },
+  { handle:'@karpathy', name:'Andrej Karpathy', desc:'AI研究の深い洞察・LLMの解説ツイートが人気', tags:['研究','技術'], url:'https://x.com/karpathy' },
+  { handle:'@ylecun', name:'Yann LeCun', desc:'Meta AI主任。AI論争・オープンソース推進派', tags:['Meta','研究'], url:'https://x.com/ylecun' },
+  { handle:'@emollick', name:'Ethan Mollick', desc:'Wharton教授。AIのビジネス活用研究が秀逸', tags:['ビジネス','教育'], url:'https://x.com/emollick' },
+  { handle:'@AIatMeta', name:'AI at Meta', desc:'Llama・MetaのAI最新情報公式', tags:['Meta','OSS'], url:'https://x.com/AIatMeta' },
+  { handle:'@scale_ai', name:'Scale AI', desc:'AIデータ・業界インサイト', tags:['データ','業界'], url:'https://x.com/scale_ai' },
+  { handle:'@Yamada_Koshi', name:'山田コーシ', desc:'日本語でAIビジネス活用情報を発信（日本語）', tags:['日本語','ビジネス'], url:'https://x.com/Yamada_Koshi' },
+  { handle:'@shi3z', name:'清水亮', desc:'AI・テック界隈の日本語解説。歯に衣着せぬ論評', tags:['日本語','技術'], url:'https://x.com/shi3z' },
+];
+
+function renderMedia() {
+  const ytGrid = document.getElementById('yt-grid');
+  YT_CHANNELS.forEach(ch => {
+    const a = document.createElement('a');
+    a.className = 'yt-card';
+    a.href = ch.url;
+    a.target = '_blank';
+    a.rel = 'noopener';
+    a.innerHTML = `<div class="yt-icon">${ch.emoji}</div><div class="yt-name">${ch.name}</div><div class="yt-desc">${ch.desc}</div><span class="yt-badge">${ch.badge}</span>`;
+    ytGrid.appendChild(a);
+  });
+  const xGrid = document.getElementById('x-grid');
+  X_ACCOUNTS.forEach(acc => {
+    const a = document.createElement('a');
+    a.className = 'x-card';
+    a.href = acc.url;
+    a.target = '_blank';
+    a.rel = 'noopener';
+    a.innerHTML = `<div class="x-handle">${acc.handle}</div><div class="x-name">${acc.name}</div><div class="x-desc">${acc.desc}</div><div class="x-tags">${acc.tags.map(t=>`<span class="tag blue">${t}</span>`).join('')}</div>`;
+    xGrid.appendChild(a);
+  });
+}
+
+// ==============================
 //  TAB SWITCH
 // ==============================
 let currentTab = 'tools';
-function switchTab(tab) {
+function switchTab(tab, btn) {
   currentTab = tab;
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  event.target.classList.add('active');
+  if (btn) btn.classList.add('active');
   document.getElementById(`section-${tab}`).classList.add('active');
-  // Reset search
   document.getElementById('searchInput').value = '';
-  if (tab !== 'trends') {
+  if (tab === 'news' && document.getElementById('news-container').querySelector('.news-loading')) {
+    loadNews('techcrunch');
+  }
+  const noFilterTabs = ['trends','news','media'];
+  if (!noFilterTabs.includes(tab)) {
     document.querySelectorAll(`#${tab}-filters .filter-tag`).forEach(t => t.classList.remove('active'));
-    document.querySelector(`#${tab}-filters .all`).classList.add('active');
+    const allBtn = document.querySelector(`#${tab}-filters .all`);
+    if (allBtn) allBtn.classList.add('active');
   }
   performSearch('');
 }
@@ -494,6 +692,7 @@ renderCards(TOOLS_DATA, 'tools-grid');
 renderCards(BUSINESS_DATA, 'business-grid');
 renderCards(DEV_DATA, 'dev-grid');
 renderTrends();
+renderMedia();
 </script>
 </body>
 </html>
