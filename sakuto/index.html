@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>さくとのべんきょうアドベンチャー！</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif;
+  background: #1a1a2e;
+  color: #fff;
+  min-height: 100vh;
+  max-width: 480px;
+  margin: 0 auto;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* ======= SCREENS ======= */
+.screen { display: none; min-height: 100vh; padding: 14px; }
+.screen.active { display: block; }
+
+#kanji-screen   { background: linear-gradient(160deg, #1a0505 0%, #3d0c0c 100%); }
+#math-screen    { background: linear-gradient(160deg, #1a0f00 0%, #3d2200 100%); }
+#english-screen { background: linear-gradient(160deg, #001a08 0%, #0a3d1a 100%); }
+#science-screen { background: linear-gradient(160deg, #001a2e 0%, #00326b 100%); }
+#social-screen  { background: linear-gradient(160deg, #150022 0%, #2d0054 100%); }
+
+/* ======= HOME ======= */
+.app-header { text-align: center; padding: 18px 0 10px; }
+.app-title {
+  font-size: 1.55rem; font-weight: bold; color: #FFD700; line-height: 1.3;
+  text-shadow: 0 0 12px rgba(255,215,0,.5);
+}
+.app-subtitle { font-size: .85rem; color: #94a3b8; margin-top: 4px; }
+
+.home-stats {
+  display: flex; justify-content: space-around;
+  background: rgba(255,255,255,.08); border-radius: 14px;
+  padding: 12px; margin: 14px 0;
+}
+.stat-item { text-align: center; }
+.stat-value { font-size: 1.6rem; font-weight: bold; color: #FFD700; }
+.stat-label { font-size: .68rem; color: #94a3b8; }
+
+/* ======= SUBJECT CARDS ======= */
+.subjects-grid { display: flex; flex-direction: column; gap: 11px; }
+
+.subject-card {
+  border-radius: 16px; padding: 14px; cursor: pointer;
+  transition: transform .18s, box-shadow .18s;
+  position: relative; overflow: hidden;
+}
+.subject-card:active { transform: scale(.97); }
+.subject-card.kanji   { background: linear-gradient(135deg, #dc2626, #991b1b); }
+.subject-card.math    { background: linear-gradient(135deg, #d97706, #b45309); }
+.subject-card.english { background: linear-gradient(135deg, #16a34a, #166534); }
+.subject-card.science { background: linear-gradient(135deg, #2563eb, #1e40af); }
+.subject-card.social  { background: linear-gradient(135deg, #7c3aed, #5b21b6); }
+
+.card-header { display: flex; align-items: center; gap: 8px; margin-bottom: 9px; }
+.card-icon { font-size: 1.9rem; }
+.card-title { font-size: 1.05rem; font-weight: bold; flex: 1; }
+.card-theme {
+  font-size: .72rem; opacity: .88;
+  background: rgba(0,0,0,.25); padding: 2px 9px; border-radius: 20px;
+}
+
+.progress-bar-wrap {
+  background: rgba(0,0,0,.3); border-radius: 999px; height: 9px; overflow: hidden;
+}
+.progress-bar-fill {
+  height: 100%; border-radius: 999px; background: rgba(255,255,255,.8);
+  transition: width .5s ease;
+}
+.progress-label {
+  display: flex; justify-content: space-between;
+  font-size: .72rem; opacity: .85; margin-top: 4px;
+}
+
+.mascot-row { text-align: center; font-size: 1.3rem; margin: 5px 0; letter-spacing: 3px; }
+
+/* ======= QUIZ HEADER ======= */
+.quiz-header {
+  display: flex; align-items: center; gap: 9px;
+  padding: 10px 0 12px; border-bottom: 1px solid rgba(255,255,255,.1);
+  margin-bottom: 14px;
+}
+.back-btn {
+  background: rgba(255,255,255,.15); border: none; color: #fff;
+  padding: 7px 13px; border-radius: 20px; font-size: .88rem; cursor: pointer;
+}
+.quiz-subject-title { font-size: 1.05rem; font-weight: bold; flex: 1; }
+.level-badge {
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  color: #000; border-radius: 7px; padding: 3px 9px;
+  font-size: .75rem; font-weight: bold; white-space: nowrap;
+}
+
+/* ======= THEME DISPLAY ======= */
+.theme-display {
+  background: rgba(255,255,255,.07); border-radius: 14px;
+  padding: 13px; text-align: center; margin-bottom: 13px;
+}
+.theme-mascot { font-size: 2.8rem; margin-bottom: 5px; }
+.theme-progress-text { font-size: .8rem; color: #94a3b8; }
+.theme-milestone { font-size: .85rem; color: #FFD700; font-weight: bold; margin-top: 4px; }
+
+/* Pokemon stages */
+.pokemon-stages { display: flex; justify-content: center; gap: 7px; margin: 6px 0; font-size: 1.35rem; }
+.poke-stage { opacity: .25; transition: opacity .3s, transform .3s; }
+.poke-stage.unlocked { opacity: .7; }
+.poke-stage.current  { opacity: 1; transform: scale(1.35); filter: drop-shadow(0 0 5px gold); }
+
+/* Dragon balls */
+.dragonballs { display: flex; justify-content: center; gap: 7px; font-size: 1.7rem; margin: 6px 0; }
+.dragonball { opacity: .2; transition: opacity .3s, transform .4s; }
+.dragonball.collected { opacity: 1; transform: scale(1.15); }
+
+/* Minecraft grid */
+.minecraft-grid {
+  display: grid; grid-template-columns: repeat(10, 1fr);
+  gap: 2px; margin: 6px auto; max-width: 210px;
+}
+.mc-block {
+  aspect-ratio: 1; border-radius: 2px;
+  background: rgba(255,255,255,.08); transition: background .25s;
+}
+.mc-block.placed { background: #4a7c2f; }
+.mc-block.placed:nth-child(3n+1) { background: #5d4e37; }
+.mc-block.placed:nth-child(5n+2) { background: #6b8fa3; }
+
+/* Basketball */
+.basketball-display {
+  display: flex; align-items: center; justify-content: center; gap: 18px; font-size: 1rem;
+}
+.score-box { text-align: center; }
+.score-num { font-size: 2.3rem; font-weight: bold; color: #FFD700; }
+.vs-text { font-size: 1.1rem; color: #64748b; }
+
+/* ======= QUESTION ======= */
+.session-score {
+  display: flex; justify-content: center; gap: 20px;
+  font-size: .82rem; color: #64748b; margin-bottom: 10px;
+}
+.sc-ok  { color: #22c55e; font-weight: bold; }
+.sc-ng  { color: #ef4444; }
+
+.question-area { margin-bottom: 13px; }
+.question-num { font-size: .75rem; color: #64748b; margin-bottom: 7px; }
+.question-text {
+  font-size: 1.2rem; font-weight: bold; line-height: 1.55;
+  background: rgba(255,255,255,.07); border-radius: 12px;
+  padding: 15px; min-height: 75px;
+  display: flex; align-items: center; justify-content: center; text-align: center;
+}
+.question-english { font-size: 1.85rem; font-weight: bold; color: #67e8f9; }
+
+/* ======= CHOICES ======= */
+.choices-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-bottom: 12px; }
+.choice-btn {
+  background: rgba(255,255,255,.09); border: 2px solid rgba(255,255,255,.18);
+  color: #fff; padding: 15px 7px; border-radius: 12px;
+  font-size: .97rem; cursor: pointer; transition: all .18s;
+  font-family: inherit; min-height: 58px; line-height: 1.3;
+}
+.choice-btn:active { transform: scale(.95); }
+.choice-btn.correct { background: rgba(34,197,94,.75); border-color: #22c55e; animation: pulse-ok .45s; }
+.choice-btn.wrong   { background: rgba(239,68,68,.55); border-color: #ef4444; animation: shake .38s; }
+.choice-btn:disabled { cursor: not-allowed; }
+
+/* ======= OVERLAYS ======= */
+.overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.88);
+  display: none; flex-direction: column;
+  justify-content: center; align-items: center;
+  z-index: 100; text-align: center; padding: 22px;
+}
+.overlay.show { display: flex; }
+.ov-emoji  { font-size: 4.5rem; margin-bottom: 14px; animation: bounce .5s; }
+.ov-title  { font-size: 1.45rem; font-weight: bold; margin-bottom: 7px; }
+.ov-sub    { font-size: .9rem; color: #94a3b8; margin-bottom: 22px; white-space: pre-line; line-height: 1.5; }
+.ov-btn {
+  background: #FFD700; color: #1a1a2e; border: none;
+  padding: 13px 42px; border-radius: 30px; font-size: 1.05rem;
+  font-weight: bold; cursor: pointer; font-family: inherit;
+}
+.ov-title.gold { color: #FFD700; }
+
+/* ======= CONFETTI ======= */
+.confetti-wrap { position: fixed; inset: 0; pointer-events: none; z-index: 200; overflow: hidden; }
+.cp {
+  position: absolute; top: -12px; border-radius: 2px;
+  animation: cffall linear forwards;
+}
+
+/* ======= STAR BG ======= */
+.stars { position: fixed; inset: 0; pointer-events: none; z-index: -1; overflow: hidden; }
+.star { position: absolute; background: #fff; border-radius: 50%; animation: twinkle ease-in-out infinite alternate; }
+
+/* ======= ANIMATIONS ======= */
+@keyframes bounce   { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-14px)} }
+@keyframes pulse-ok { 0%{transform:scale(1)} 50%{transform:scale(1.06)} 100%{transform:scale(1)} }
+@keyframes shake    { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-7px)} 75%{transform:translateX(7px)} }
+@keyframes cffall   { to{transform:translateY(110vh) rotate(720deg);opacity:0} }
+@keyframes twinkle  { 0%{opacity:.15} 100%{opacity:.9} }
+@keyframes float    { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
+@keyframes mlbounce { 0%{transform:scale(1) rotate(-4deg)} 100%{transform:scale(1.12) rotate(4deg)} }
+.float-anim { animation: float 2.2s ease-in-out infinite; }
+.ml-anim    { animation: mlbounce .8s ease-in-out infinite alternate; }
+</style>
+</head>
+<body>
+
+<div class="stars" id="stars"></div>
+<div class="confetti-wrap" id="confetti"></div>
+
+<!-- ========== HOME SCREEN ========== -->
+<div class="screen active" id="home-screen">
+  <div class="app-header">
+    <div class="app-title">🌟 さくとの<br>べんきょうアドベンチャー！</div>
+    <div class="app-subtitle">まいにち すこしずつ つよくなろう！💪</div>
+  </div>
+
+  <div class="home-stats">
+    <div class="stat-item"><div class="stat-value" id="home-total">0</div><div class="stat-label">ごうかく</div></div>
+    <div class="stat-item"><div class="stat-value" id="home-streak">0</div><div class="stat-label">れんぞく🔥</div></div>
+    <div class="stat-item"><div class="stat-value" id="home-level">1</div><div class="stat-label">レベル⭐</div></div>
+  </div>
+
+  <div class="subjects-grid">
+    <div class="subject-card kanji" onclick="openSubject('kanji')">
+      <div class="card-header">
+        <div class="card-icon">📖</div>
+        <div class="card-title">漢字</div>
+        <div class="card-theme">ポケモン</div>
+      </div>
+      <div class="mascot-row" id="kanji-home-mascot">🥚</div>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="kanji-home-bar" style="width:0%"></div></div>
+      <div class="progress-label"><span id="kanji-home-text">はじめよう！</span><span id="kanji-home-lv">Lv.1</span></div>
+    </div>
+
+    <div class="subject-card math" onclick="openSubject('math')">
+      <div class="card-header">
+        <div class="card-icon">🔢</div>
+        <div class="card-title">算数</div>
+        <div class="card-theme">ドラゴンボール</div>
+      </div>
+      <div class="mascot-row" id="math-home-mascot">⚫⚫⚫⚫⚫⚫⚫</div>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="math-home-bar" style="width:0%"></div></div>
+      <div class="progress-label"><span id="math-home-text">ドラゴンボールをあつめろ！</span><span id="math-home-lv">0/7</span></div>
+    </div>
+
+    <div class="subject-card english" onclick="openSubject('english')">
+      <div class="card-header">
+        <div class="card-icon">🔤</div>
+        <div class="card-title">英語</div>
+        <div class="card-theme">マインクラフト</div>
+      </div>
+      <div class="mascot-row" id="english-home-mascot">🟫🟫🟫</div>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="english-home-bar" style="width:0%"></div></div>
+      <div class="progress-label"><span id="english-home-text">ブロックをおこう！</span><span id="english-home-lv">0/30</span></div>
+    </div>
+
+    <div class="subject-card science" onclick="openSubject('science')">
+      <div class="card-header">
+        <div class="card-icon">🔬</div>
+        <div class="card-title">理科</div>
+        <div class="card-theme">スラムダンク</div>
+      </div>
+      <div class="mascot-row" id="science-home-mascot">🏀</div>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="science-home-bar" style="width:0%"></div></div>
+      <div class="progress-label"><span id="science-home-text">シュートをきめろ！</span><span id="science-home-lv">0点</span></div>
+    </div>
+
+    <div class="subject-card social" onclick="openSubject('social')">
+      <div class="card-header">
+        <div class="card-icon">🗾</div>
+        <div class="card-title">社会</div>
+        <div class="card-theme">スラムダンク</div>
+      </div>
+      <div class="mascot-row" id="social-home-mascot">🏀</div>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="social-home-bar" style="width:0%"></div></div>
+      <div class="progress-label"><span id="social-home-text">チャンピオンをめざせ！</span><span id="social-home-lv">0点</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== KANJI SCREEN ========== -->
+<div class="screen" id="kanji-screen">
+  <div class="quiz-header">
+    <button class="back-btn" onclick="goHome()">← もどる</button>
+    <div class="quiz-subject-title">📖 漢字 ポケモン</div>
+    <div class="level-badge" id="kanji-lv-badge">Lv.1</div>
+  </div>
+  <div class="theme-display">
+    <div class="pokemon-stages" id="pokemon-stages">
+      <span class="poke-stage" data-i="0">🥚</span>
+      <span class="poke-stage" data-i="1">🐣</span>
+      <span class="poke-stage" data-i="2">🐥</span>
+      <span class="poke-stage" data-i="3">🐦</span>
+      <span class="poke-stage" data-i="4">🦅</span>
+      <span class="poke-stage" data-i="5">🐉</span>
+    </div>
+    <div class="theme-mascot float-anim" id="kanji-mascot">🥚</div>
+    <div class="theme-progress-text" id="kanji-theme-txt">もんだいにこたえてポケモンをしんかさせよう！</div>
+    <div class="progress-bar-wrap" style="margin-top:7px"><div class="progress-bar-fill" id="kanji-theme-bar" style="width:0%"></div></div>
+    <div class="theme-milestone" id="kanji-milestone"></div>
+  </div>
+  <div class="session-score">
+    <span>せいかい: <span class="sc-ok" id="kanji-sc-ok">0</span></span>
+    <span>まちがい: <span class="sc-ng" id="kanji-sc-ng">0</span></span>
+  </div>
+  <div class="question-area">
+    <div class="question-num" id="kanji-qnum">もんだい 1/10</div>
+    <div class="question-text" id="kanji-qtxt">もんだい</div>
+  </div>
+  <div class="choices-grid" id="kanji-choices"></div>
+</div>
+
+<!-- ========== MATH SCREEN ========== -->
+<div class="screen" id="math-screen">
+  <div class="quiz-header">
+    <button class="back-btn" onclick="goHome()">← もどる</button>
+    <div class="quiz-subject-title">🔢 算数 ドラゴンボール</div>
+  </div>
+  <div class="theme-display">
+    <div class="dragonballs">
+      <span class="dragonball" id="db1">🔮</span><span class="dragonball" id="db2">🔮</span>
+      <span class="dragonball" id="db3">🔮</span><span class="dragonball" id="db4">🔮</span>
+      <span class="dragonball" id="db5">🔮</span><span class="dragonball" id="db6">🔮</span>
+      <span class="dragonball" id="db7">🔮</span>
+    </div>
+    <div class="theme-progress-text" id="math-theme-txt">10もんせいかいで1つのドラゴンボール！</div>
+    <div class="theme-milestone" id="math-milestone"></div>
+  </div>
+  <div class="session-score">
+    <span>せいかい: <span class="sc-ok" id="math-sc-ok">0</span></span>
+    <span>まちがい: <span class="sc-ng" id="math-sc-ng">0</span></span>
+  </div>
+  <div class="question-area">
+    <div class="question-num" id="math-qnum">もんだい 1/10</div>
+    <div class="question-text" id="math-qtxt">けいさんしよう</div>
+  </div>
+  <div class="choices-grid" id="math-choices"></div>
+</div>
+
+<!-- ========== ENGLISH SCREEN ========== -->
+<div class="screen" id="english-screen">
+  <div class="quiz-header">
+    <button class="back-btn" onclick="goHome()">← もどる</button>
+    <div class="quiz-subject-title">🔤 英語 マインクラフト</div>
+  </div>
+  <div class="theme-display">
+    <div class="minecraft-grid" id="minecraft-grid"></div>
+    <div class="theme-progress-text" id="english-theme-txt">せいかいするとブロックがおける！</div>
+    <div class="theme-milestone" id="english-milestone"></div>
+  </div>
+  <div class="session-score">
+    <span>せいかい: <span class="sc-ok" id="english-sc-ok">0</span></span>
+    <span>まちがい: <span class="sc-ng" id="english-sc-ng">0</span></span>
+  </div>
+  <div class="question-area">
+    <div class="question-num" id="english-qnum">もんだい 1/10</div>
+    <div class="question-text"><span class="question-english" id="english-word">apple</span></div>
+  </div>
+  <div class="choices-grid" id="english-choices"></div>
+</div>
+
+<!-- ========== SCIENCE SCREEN ========== -->
+<div class="screen" id="science-screen">
+  <div class="quiz-header">
+    <button class="back-btn" onclick="goHome()">← もどる</button>
+    <div class="quiz-subject-title">🔬 理科 スラムダンク</div>
+  </div>
+  <div class="theme-display">
+    <div class="basketball-display">
+      <div class="score-box"><div class="score-num" id="science-score">0</div><div style="font-size:.8rem">湘北</div></div>
+      <div class="vs-text">VS</div>
+      <div class="score-box"><div class="score-num" id="science-escore">0</div><div style="font-size:.8rem" id="science-ename">陵南</div></div>
+    </div>
+    <div class="theme-progress-text" id="science-theme-txt">せいかいで＋２点！60点で勝利！🏆</div>
+    <div class="progress-bar-wrap" style="margin-top:7px"><div class="progress-bar-fill" id="science-theme-bar" style="width:0%;background:#f97316"></div></div>
+  </div>
+  <div class="session-score">
+    <span>せいかい: <span class="sc-ok" id="science-sc-ok">0</span></span>
+    <span>まちがい: <span class="sc-ng" id="science-sc-ng">0</span></span>
+  </div>
+  <div class="question-area">
+    <div class="question-num" id="science-qnum">もんだい 1/10</div>
+    <div class="question-text" id="science-qtxt">もんだい</div>
+  </div>
+  <div class="choices-grid" id="science-choices"></div>
+</div>
+
+<!-- ========== SOCIAL SCREEN ========== -->
+<div class="screen" id="social-screen">
+  <div class="quiz-header">
+    <button class="back-btn" onclick="goHome()">← もどる</button>
+    <div class="quiz-subject-title">🗾 社会 スラムダンク</div>
+  </div>
+  <div class="theme-display">
+    <div class="basketball-display">
+      <div class="score-box"><div class="score-num" id="social-score">0</div><div style="font-size:.8rem">湘北</div></div>
+      <div class="vs-text">VS</div>
+      <div class="score-box"><div class="score-num" id="social-escore">0</div><div style="font-size:.8rem" id="social-ename">陵南</div></div>
+    </div>
+    <div class="theme-progress-text" id="social-theme-txt">せいかいで＋２点！60点で勝利！🏆</div>
+    <div class="progress-bar-wrap" style="margin-top:7px"><div class="progress-bar-fill" id="social-theme-bar" style="width:0%;background:#a855f7"></div></div>
+  </div>
+  <div class="session-score">
+    <span>せいかい: <span class="sc-ok" id="social-sc-ok">0</span></span>
+    <span>まちがい: <span class="sc-ng" id="social-sc-ng">0</span></span>
+  </div>
+  <div class="question-area">
+    <div class="question-num" id="social-qnum">もんだい 1/10</div>
+    <div class="question-text" id="social-qtxt">もんだい</div>
+  </div>
+  <div class="choices-grid" id="social-choices"></div>
+</div>
+
+<!-- ========== FEEDBACK OVERLAY ========== -->
+<div class="overlay" id="fb-overlay">
+  <div class="ov-emoji" id="fb-emoji">⭕</div>
+  <div class="ov-title" id="fb-title">せいかい！</div>
+  <div class="ov-sub"   id="fb-sub"></div>
+  <button class="ov-btn" id="fb-btn" onclick="nextQuestion()">つぎへ ▶</button>
+</div>
+
+<!-- ========== MILESTONE OVERLAY ========== -->
+<div class="overlay" id="ml-overlay">
+  <div class="ov-emoji ml-anim" id="ml-icon">🎉</div>
+  <div class="ov-title gold" id="ml-title">レベルアップ！</div>
+  <div class="ov-sub"        id="ml-desc">すごい！</div>
+  <button class="ov-btn" onclick="closeMilestone()">やったー！</button>
+</div>
+
+<script>
+/* ============================================================
+   QUIZ DATA
+   ============================================================ */
+
+const Q = {
+kanji: [
+  {q:'「愛」のよみがなは？', a:'あい', c:['あい','こい','おも','はな']},
+  {q:'「英語」のよみがなは？', a:'えいご', c:['えいご','いご','えんご','えき']},
+  {q:'「観察」のよみがなは？', a:'かんさつ', c:['かんさつ','かんきょ','さつえい','けんさつ']},
+  {q:'「季節」のよみがなは？', a:'きせつ', c:['きせつ','きかん','せつぶん','きほん']},
+  {q:'「協力」のよみがなは？', a:'きょうりょく', c:['きょうりょく','きょうぎ','れんきょ','きょか']},
+  {q:'「結果」のよみがなは？', a:'けっか', c:['けっか','けいか','せっか','けいけん']},
+  {q:'「最初」のよみがなは？', a:'さいしょ', c:['さいしょ','さいご','さいだい','さいこう']},
+  {q:'「参加」のよみがなは？', a:'さんか', c:['さんか','さんぽ','にゅうか','さんこう']},
+  {q:'「試合」のよみがなは？', a:'しあい', c:['しあい','しけん','じあい','しんぱい']},
+  {q:'「信頼」のよみがなは？', a:'しんらい', c:['しんらい','しんゆう','しんぱい','しんせい']},
+  {q:'「成長」のよみがなは？', a:'せいちょう', c:['せいちょう','せいかつ','はっせい','せいと']},
+  {q:'「選手」のよみがなは？', a:'せんしゅ', c:['せんしゅ','せんせい','えらぶ','せんたく']},
+  {q:'「達成」のよみがなは？', a:'たっせい', c:['たっせい','たいせつ','たっきゅう','たいかい']},
+  {q:'「特別」のよみがなは？', a:'とくべつ', c:['とくべつ','とくい','とくてい','とくちょう']},
+  {q:'「努力」のよみがなは？', a:'どりょく', c:['どりょく','のうりょく','じんりょく','どうりょく']},
+  {q:'「必要」のよみがなは？', a:'ひつよう', c:['ひつよう','ひつぜん','かならず','ひんぱん']},
+  {q:'「変化」のよみがなは？', a:'へんか', c:['へんか','へんけん','へんこう','へんじ']},
+  {q:'「勇気」のよみがなは？', a:'ゆうき', c:['ゆうき','ゆうしゃ','ゆうめい','ゆうこう']},
+  {q:'「利用」のよみがなは？', a:'りよう', c:['りよう','りえき','りかい','りか']},
+  {q:'「連続」のよみがなは？', a:'れんぞく', c:['れんぞく','れんしゅう','れんらく','れんそう']},
+  {q:'「材料」のよみがなは？', a:'ざいりょう', c:['ざいりょう','ようひん','しんりょう','ざいほう']},
+  {q:'「節約」のよみがなは？', a:'せつやく', c:['せつやく','やくそく','せつぶん','せっけん']},
+  {q:'「議会」のよみがなは？', a:'ぎかい', c:['ぎかい','かいぎ','かいわ','ぎじ']},
+  {q:'「産地」のよみがなは？', a:'さんち', c:['さんち','うまれた','ちさん','さんじょ']},
+  {q:'「積極」のよみがなは？', a:'せっきょく', c:['せっきょく','せきにん','しつれい','せっかく']},
+  {q:'「老人」のよみがなは？', a:'ろうじん', c:['ろうじん','おじさん','としより','こうれい']},
+  {q:'「録音」のよみがなは？', a:'ろくおん', c:['ろくおん','おんがく','きろく','おんせい']},
+  {q:'「改良」のよみがなは？', a:'かいりょう', c:['かいりょう','かいか','りょうか','かいほう']},
+  {q:'「功績」のよみがなは？', a:'こうせき', c:['こうせき','こうか','こうど','こうせん']},
+  {q:'「散歩」のよみがなは？', a:'さんぽ', c:['さんぽ','さんか','きょほ','あるき']},
+  {q:'「府県」のよみがなは？', a:'ふけん', c:['ふけん','けんふ','とどうふ','こうふ']},
+  {q:'「無事」のよみがなは？', a:'ぶじ', c:['ぶじ','むじ','へいわ','あんぜん']},
+  {q:'「包む」のよみがなは？', a:'つつむ', c:['つつむ','くるむ','まく','とじる']},
+  {q:'「残念」のよみがなは？', a:'ざんねん', c:['ざんねん','きねん','こうかい','むねん']},
+  {q:'「観光」のよみがなは？', a:'かんこう', c:['かんこう','みる','こうかん','けいかん']},
+],
+math: [
+  {q:'12 × 13 = ?', a:'156', c:['156','145','168','152']},
+  {q:'144 ÷ 12 = ?', a:'12', c:['12','14','11','13']},
+  {q:'25 × 4 = ?', a:'100', c:['100','80','120','90']},
+  {q:'1000 ÷ 25 = ?', a:'40', c:['40','35','50','45']},
+  {q:'72 ÷ 8 = ?', a:'9', c:['9','8','7','10']},
+  {q:'正方形の面積。１辺が5cm。面積は？', a:'25㎝²', c:['25㎝²','20㎝²','10㎝²','50㎝²']},
+  {q:'長方形の面積。たて6cm、よこ8cm。', a:'48㎝²', c:['48㎝²','28㎝²','36㎝²','56㎝²']},
+  {q:'直角は何度？', a:'90度', c:['90度','180度','45度','60度']},
+  {q:'1万 + 3万 = ?', a:'4万', c:['4万','3万','13万','40万']},
+  {q:'56 ÷ 7 = ?', a:'8', c:['8','7','9','6']},
+  {q:'15 × 15 = ?', a:'225', c:['225','200','215','250']},
+  {q:'正三角形の角は1つ何度？', a:'60度', c:['60度','90度','45度','120度']},
+  {q:'3/4 = □/8。□は？', a:'6', c:['6','4','8','3']},
+  {q:'0.5 + 0.5 = ?', a:'1', c:['1','0.10','0.55','5']},
+  {q:'40 × 60 = ?', a:'2400', c:['2400','240','24000','2000']},
+  {q:'1日 = ?時間', a:'24時間', c:['24時間','12時間','48時間','60時間']},
+  {q:'1L = ?mL', a:'1000mL', c:['1000mL','100mL','10mL','500mL']},
+  {q:'1km = ?m', a:'1000m', c:['1000m','100m','10000m','500m']},
+  {q:'□ × 7 = 63。□は？', a:'9', c:['9','8','7','10']},
+  {q:'3000 × 4 = ?', a:'12000', c:['12000','1200','12','120000']},
+  {q:'630 ÷ 9 = ?', a:'70', c:['70','60','80','90']},
+  {q:'2/5 + 2/5 = ?', a:'4/5', c:['4/5','2/5','4/10','1']},
+  {q:'30 × 30 = ?', a:'900', c:['900','600','800','1000']},
+  {q:'99 × 2 = ?', a:'198', c:['198','188','200','208']},
+  {q:'1時間25分 + 45分 = ?', a:'2時間10分', c:['2時間10分','1時間70分','2時間','1時間50分']},
+  {q:'1週間 = ?日', a:'7日', c:['7日','5日','6日','8日']},
+  {q:'2.5 + 1.5 = ?', a:'4', c:['4','3','3.5','5']},
+  {q:'500円 × 6 = ?', a:'3000円', c:['3000円','2500円','3500円','1200円']},
+  {q:'45 ÷ 5 = ?', a:'9', c:['9','8','10','7']},
+  {q:'100万 × 10 = ?', a:'1000万', c:['1000万','100万','10億','10万']},
+],
+english: [
+  {q:'apple', a:'りんご', c:['りんご','もも','ぶどう','みかん']},
+  {q:'dog', a:'いぬ', c:['いぬ','ねこ','うさぎ','さる']},
+  {q:'cat', a:'ねこ', c:['ねこ','いぬ','とり','さかな']},
+  {q:'book', a:'本', c:['本','えんぴつ','かばん','つくえ']},
+  {q:'school', a:'学校', c:['学校','びょういん','こうえん','えき']},
+  {q:'water', a:'みず', c:['みず','ジュース','ぎゅうにゅう','こうちゃ']},
+  {q:'friend', a:'ともだち', c:['ともだち','かぞく','せんせい','おや']},
+  {q:'happy', a:'うれしい', c:['うれしい','かなしい','こわい','つかれた']},
+  {q:'big', a:'おおきい', c:['おおきい','ちいさい','たかい','ながい']},
+  {q:'small', a:'ちいさい', c:['ちいさい','おおきい','みじかい','せまい']},
+  {q:'run', a:'はしる', c:['はしる','あるく','およぐ','とぶ']},
+  {q:'eat', a:'たべる', c:['たべる','のむ','みる','きく']},
+  {q:'red', a:'あか', c:['あか','あお','きいろ','しろ']},
+  {q:'blue', a:'あお', c:['あお','あか','きいろ','みどり']},
+  {q:'sun', a:'たいよう', c:['たいよう','つき','ほし','くも']},
+  {q:'tree', a:'き（木）', c:['き（木）','はな','くさ','やま']},
+  {q:'house', a:'いえ', c:['いえ','がっこう','みせ','こうえん']},
+  {q:'Monday', a:'月曜日', c:['月曜日','火曜日','水曜日','木曜日']},
+  {q:'Sunday', a:'日曜日', c:['日曜日','土曜日','月曜日','金曜日']},
+  {q:'breakfast', a:'ちょうしょく', c:['ちょうしょく','ちゅうしょく','ゆうしょく','おやつ']},
+  {q:'bicycle', a:'じてんしゃ', c:['じてんしゃ','くるま','でんしゃ','バス']},
+  {q:'baseball', a:'やきゅう', c:['やきゅう','サッカー','テニス','バスケ']},
+  {q:'hospital', a:'びょういん', c:['びょういん','がっこう','えき','スーパー']},
+  {q:'winter', a:'ふゆ', c:['ふゆ','はる','なつ','あき']},
+  {q:'summer', a:'なつ', c:['なつ','はる','あき','ふゆ']},
+  {q:'spring', a:'はる', c:['はる','なつ','あき','ふゆ']},
+  {q:'autumn', a:'あき', c:['あき','はる','なつ','ふゆ']},
+  {q:'morning', a:'あさ', c:['あさ','ひる','よる','ゆうがた']},
+  {q:'night', a:'よる', c:['よる','あさ','ひる','ゆうがた']},
+  {q:'fast', a:'はやい', c:['はやい','おそい','つよい','よわい']},
+  {q:'music', a:'おんがく', c:['おんがく','びじゅつ','たいいく','りか']},
+  {q:'lion', a:'ライオン', c:['ライオン','トラ','クマ','ゾウ']},
+  {q:'bird', a:'とり', c:['とり','さかな','むし','かえる']},
+  {q:'desk', a:'つくえ', c:['つくえ','いす','まど','ドア']},
+  {q:'tall', a:'たかい（せが）', c:['たかい（せが）','ひくい','ふとい','やせた']},
+],
+science: [
+  {q:'太陽は東・西・南・北のどこから昇る？', a:'東', c:['東','西','南','北']},
+  {q:'植物が育つために必要なものは？', a:'水・日光・空気', c:['水・日光・空気','水だけ','土だけ','日光だけ']},
+  {q:'ヒトの体で血液を送り出す臓器は？', a:'心臓', c:['心臓','肺','肝臓','胃']},
+  {q:'空気中で一番多い気体は？', a:'ちっ素', c:['ちっ素','さんそ','二酸化炭素','水蒸気']},
+  {q:'水が沸とうする温度は？', a:'100℃', c:['100℃','0℃','50℃','200℃']},
+  {q:'水が氷になる温度は？', a:'0℃', c:['0℃','100℃','-100℃','10℃']},
+  {q:'電気を通すのはどれ？', a:'アルミはく', c:['アルミはく','ゴム','プラスチック','木']},
+  {q:'植物の花粉を運ぶのは？', a:'こん虫や風', c:['こん虫や風','雨','土','雪']},
+  {q:'金属は熱すると？', a:'ふくらむ', c:['ふくらむ','縮む','変わらない','溶ける']},
+  {q:'ヒトが息を吸うとき取り入れる気体は？', a:'さんそ（酸素）', c:['さんそ（酸素）','二酸化炭素','ちっ素','水蒸気']},
+  {q:'植物が光合成で出す気体は？', a:'さんそ（酸素）', c:['さんそ（酸素）','二酸化炭素','ちっ素','水蒸気']},
+  {q:'かげができる方向は太陽の？', a:'反対側', c:['反対側','同じ側','左側','右側']},
+  {q:'電磁石に鉄をくっつけるには？', a:'電流を流す', c:['電流を流す','熱する','冷やす','水につける']},
+  {q:'水じょう気が冷えてできるのは？', a:'雲・つゆ・霧', c:['雲・つゆ・霧','虹','雷','風']},
+  {q:'月は地球のまわりを約1か月で？', a:'1周する', c:['1周する','2周する','半周する','動かない']},
+  {q:'でん粉があるか調べる液は？', a:'ヨウ素液', c:['ヨウ素液','食塩水','砂糖水','酢']},
+  {q:'ドライアイスは何が固まったもの？', a:'二酸化炭素', c:['二酸化炭素','水','さんそ','ちっ素']},
+  {q:'北極星がある方角は？', a:'北', c:['北','南','東','西']},
+  {q:'音は何を伝わる？', a:'空気・もの（振動）', c:['空気・もの（振動）','光','電気','熱']},
+  {q:'水が水蒸気になることを何という？', a:'蒸発', c:['蒸発','凝固','結露','融解']},
+  {q:'豆電球を直列でつなぐと？', a:'暗くなる', c:['暗くなる','明るくなる','変わらない','消える']},
+  {q:'豆電球を並列でつなぐと？', a:'明るさが変わらない', c:['明るさが変わらない','暗くなる','消える','もっと明るくなる']},
+  {q:'季節によって昼の長さが変わる理由は？', a:'地球が太陽のまわりを回るから', c:['地球が太陽のまわりを回るから','太陽が動くから','月が動くから','天気が変わるから']},
+  {q:'月の形が変わるのは？', a:'月と太陽の位置が変わるから', c:['月と太陽の位置が変わるから','月が光るから','雲で隠れるから','地球が変わるから']},
+  {q:'秋に葉が紅葉する木は？', a:'落葉樹', c:['落葉樹','常緑樹','サボテン','竹']},
+  {q:'てんびんで両方水平になると？', a:'同じ重さ', c:['同じ重さ','右が重い','左が重い','わからない']},
+  {q:'ものの重さは場所が変わると？', a:'変わらない', c:['変わらない','重くなる','軽くなる','バラバラ']},
+  {q:'星座の形は時間がたつと？', a:'変わらない', c:['変わらない','変わる','消える','バラバラになる']},
+  {q:'虫めがねで太陽を見ると？', a:'目が危険なので見てはいけない', c:['目が危険なので見てはいけない','きれいに見える','大きく見える','色が変わる']},
+  {q:'植物の根の役割は？', a:'水や養分を吸う', c:['水や養分を吸う','光合成をする','花粉を作る','種を作る']},
+],
+social: [
+  {q:'日本の都道府県は全部でいくつ？', a:'47', c:['47','45','50','46']},
+  {q:'日本の首都は？', a:'東京都', c:['東京都','大阪府','京都府','神奈川県']},
+  {q:'地図で北はどの方向？', a:'上', c:['上','下','左','右']},
+  {q:'日本一高い山は？', a:'富士山', c:['富士山','白山','北岳','槍ヶ岳']},
+  {q:'日本一長い川は？', a:'信濃川', c:['信濃川','利根川','阿賀野川','石狩川']},
+  {q:'日本一大きな湖は？', a:'琵琶湖', c:['琵琶湖','霞ヶ浦','サロマ湖','猪苗代湖']},
+  {q:'北海道の県庁所在地は？', a:'札幌市', c:['札幌市','函館市','旭川市','釧路市']},
+  {q:'愛知県の県庁所在地は？', a:'名古屋市', c:['名古屋市','豊田市','岡崎市','豊橋市']},
+  {q:'りんごの生産量日本一は？', a:'青森県', c:['青森県','長野県','山形県','北海道']},
+  {q:'みかんの生産量日本一は？', a:'和歌山県', c:['和歌山県','愛媛県','静岡県','熊本県']},
+  {q:'日本に都はいくつ？', a:'1つ（東京都）', c:['1つ（東京都）','2つ','3つ','0']},
+  {q:'日本に道はいくつ？', a:'1つ（北海道）', c:['1つ（北海道）','2つ','47','0']},
+  {q:'日本に府はいくつ？', a:'2つ（大阪・京都）', c:['2つ（大阪・京都）','1つ','3つ','5つ']},
+  {q:'富士山がある都道府県は？', a:'静岡県と山梨県', c:['静岡県と山梨県','長野県と東京都','神奈川県だけ','静岡県だけ']},
+  {q:'世界遺産・原爆ドームがある都市は？', a:'広島市', c:['広島市','長崎市','京都市','奈良市']},
+  {q:'岡山・広島があるのはどの地方？', a:'中国地方', c:['中国地方','四国地方','近畿地方','九州地方']},
+  {q:'徳島・高知があるのはどの地方？', a:'四国地方', c:['四国地方','中国地方','近畿地方','九州地方']},
+  {q:'大阪・京都・奈良があるのはどの地方？', a:'近畿地方', c:['近畿地方','中国地方','四国地方','東海地方']},
+  {q:'東京・埼玉・千葉・神奈川がある地方は？', a:'関東地方', c:['関東地方','東北地方','甲信越地方','東海地方']},
+  {q:'北海道の面積は他の地方と比べると？', a:'一番広い', c:['一番広い','一番せまい','2番目','ふつう']},
+  {q:'水はどこから家にくる？', a:'じょう水場から水道管', c:['じょう水場から水道管','川から直接','海水','雨水']},
+  {q:'ゴミはどこで処理される？', a:'ごみ処理場', c:['ごみ処理場','学校','川','海']},
+  {q:'日本で春のお花見で有名な木は？', a:'さくら', c:['さくら','うめ','もも','あじさい']},
+  {q:'奈良県といえば有名な動物は？', a:'しか', c:['しか','さる','きつね','うさぎ']},
+  {q:'地図で縮尺1/25000。地図上1cmは実際何m？', a:'250m', c:['250m','25m','2500m','25000m']},
+  {q:'都道府県で一番人口が多いのは？', a:'東京都', c:['東京都','大阪府','神奈川県','北海道']},
+  {q:'スキー場が多い県は？', a:'新潟県・長野県', c:['新潟県・長野県','沖縄・鹿児島','千葉・神奈川','愛知・岐阜']},
+  {q:'うどんで有名な都道府県は？', a:'香川県', c:['香川県','福岡県','新潟県','愛知県']},
+  {q:'沖縄の昔の呼び名は？', a:'琉球王国', c:['琉球王国','大和朝廷','蝦夷地','西海道']},
+  {q:'消防署はどんな仕事をする？', a:'火事や救急を担う', c:['火事や救急を担う','道路を作る','ゴミを集める','電気を作る']},
+]};
+
+/* ============================================================
+   THEME DATA
+   ============================================================ */
+const POKE_STAGES = [
+  {e:'🥚', n:'タマゴ',    t:0},
+  {e:'🐣', n:'ひよこモン', t:10},
+  {e:'🐥', n:'ひなモン',  t:20},
+  {e:'🐦', n:'とりモン',  t:35},
+  {e:'🦅', n:'わしモン',  t:55},
+  {e:'🐉', n:'りゅうモン', t:80},
+];
+const BB_ENEMIES = ['陵南高校','翔陽高校','豊玉高校','海南大附属','山王工業'];
+
+/* ============================================================
+   APP STATE
+   ============================================================ */
+const SK = 'sakuto_v2';
+let D = (() => {
+  try { return JSON.parse(localStorage.getItem(SK)) || {}; } catch(e){ return {}; }
+})();
+['kanji','math','english','science','social'].forEach(s => {
+  if (!D[s]) D[s] = {ok:0};
+});
+if (!D.streak) D.streak = 0;
+
+function save() { localStorage.setItem(SK, JSON.stringify(D)); }
+
+let curSubject = '', curQs = [], curIdx = 0, sesOk = 0, sesNg = 0;
+let pendingMl = null;
+
+/* ============================================================
+   HELPERS
+   ============================================================ */
+function shuffle(a) {
+  const b = [...a];
+  for (let i = b.length-1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i+1));
+    [b[i], b[j]] = [b[j], b[i]];
+  }
+  return b;
+}
+
+function getPokeStage(ok) {
+  let s = 0;
+  POKE_STAGES.forEach((p,i) => { if (ok >= p.t) s = i; });
+  return s;
+}
+
+function getMathBalls(ok) { return Math.min(7, Math.floor(ok / 10)); }
+function getMcBlocks(ok)  { return Math.min(30, ok); }
+function getBBScore(ok)   { return ok * 2; }
+function getBBGame(ok)    { return Math.floor(getBBScore(ok) / 60); }
+
+/* ============================================================
+   HOME SCREEN
+   ============================================================ */
+function updateHome() {
+  D = (() => { try { return JSON.parse(localStorage.getItem(SK)) || D; } catch(e){ return D; } })();
+  const total = ['kanji','math','english','science','social'].reduce((s,k) => s + (D[k]?.ok||0), 0);
+  document.getElementById('home-total').textContent  = total;
+  document.getElementById('home-streak').textContent = D.streak || 0;
+  document.getElementById('home-level').textContent  = Math.floor(total/20) + 1;
+
+  // Kanji
+  const kOk = D.kanji.ok, kSt = getPokeStage(kOk), kP = POKE_STAGES[kSt], kN = POKE_STAGES[kSt+1];
+  const kPct = kN ? Math.round((kOk - kP.t) / (kN.t - kP.t) * 100) : 100;
+  document.getElementById('kanji-home-mascot').textContent = kP.e;
+  document.getElementById('kanji-home-bar').style.width    = kPct + '%';
+  document.getElementById('kanji-home-text').textContent   = `${kP.n}・${kOk}もん`;
+  document.getElementById('kanji-home-lv').textContent     = `Lv.${kSt+1}`;
+
+  // Math
+  const mOk = D.math.ok, mBalls = getMathBalls(mOk);
+  document.getElementById('math-home-mascot').textContent = [...Array(7)].map((_,i)=>i<mBalls?'🔮':'⚫').join('');
+  document.getElementById('math-home-bar').style.width    = Math.round((mBalls/7)*100) + '%';
+  document.getElementById('math-home-text').textContent   = `${mBalls}/7ドラゴンボール`;
+  document.getElementById('math-home-lv').textContent     = `${mBalls}/7`;
+
+  // English
+  const eOk = D.english.ok, eBlocks = getMcBlocks(eOk);
+  document.getElementById('english-home-mascot').textContent = '🟫'.repeat(Math.max(1, Math.ceil(eBlocks/10)));
+  document.getElementById('english-home-bar').style.width    = Math.round((eBlocks/30)*100) + '%';
+  document.getElementById('english-home-text').textContent   = `${eBlocks}ブロック`;
+  document.getElementById('english-home-lv').textContent     = `${eBlocks}/30`;
+
+  // Science
+  const scOk = D.science.ok, scS = getBBScore(scOk), scG = getBBGame(scOk);
+  document.getElementById('science-home-mascot').textContent = '🏀'.repeat(Math.max(1, Math.min(5, scG+1)));
+  document.getElementById('science-home-bar').style.width    = Math.round(((scS%60)/60)*100) + '%';
+  document.getElementById('science-home-text').textContent   = `${scS}点 ${scG}勝`;
+  document.getElementById('science-home-lv').textContent     = `${scS%60}/60`;
+
+  // Social
+  const soOk = D.social.ok, soS = getBBScore(soOk), soG = getBBGame(soOk);
+  document.getElementById('social-home-mascot').textContent = '🏀'.repeat(Math.max(1, Math.min(5, soG+1)));
+  document.getElementById('social-home-bar').style.width    = Math.round(((soS%60)/60)*100) + '%';
+  document.getElementById('social-home-text').textContent   = `${soS}点 ${soG}勝`;
+  document.getElementById('social-home-lv').textContent     = `${soS%60}/60`;
+
+  save();
+}
+
+/* ============================================================
+   NAVIGATION
+   ============================================================ */
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function goHome() {
+  updateHome();
+  showScreen('home-screen');
+}
+
+function openSubject(sub) {
+  curSubject = sub;
+  sesOk = 0; sesNg = 0;
+  curQs = shuffle([...Q[sub]]).slice(0, 10);
+  curIdx = 0;
+  showScreen(sub + '-screen');
+  updateThemeDisplay();
+  renderQuestion();
+}
+
+/* ============================================================
+   QUESTION RENDERING
+   ============================================================ */
+function renderQuestion() {
+  if (curIdx >= curQs.length) { showSessionEnd(); return; }
+  const q  = curQs[curIdx];
+  const s  = curSubject;
+  const el = id => document.getElementById(id);
+
+  el(`${s}-qnum`).textContent = `もんだい ${curIdx+1}/${curQs.length}`;
+  el(`${s}-sc-ok`).textContent = sesOk;
+  el(`${s}-sc-ng`).textContent = sesNg;
+
+  if (s === 'english') {
+    el('english-word').textContent = q.q;
+  } else {
+    el(`${s}-qtxt`).textContent = q.q;
+  }
+
+  const grid = el(`${s}-choices`);
+  grid.innerHTML = '';
+  shuffle(q.c).forEach(choice => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.textContent = choice;
+    btn.addEventListener('click', () => checkAnswer(btn, choice, q.a));
+    grid.appendChild(btn);
+  });
+}
+
+/* ============================================================
+   ANSWER CHECKING
+   ============================================================ */
+function checkAnswer(btn, selected, correct) {
+  document.querySelectorAll(`#${curSubject}-choices .choice-btn`).forEach(b => b.disabled = true);
+  const ok = selected === correct;
+
+  if (ok) {
+    btn.classList.add('correct');
+    sesOk++;
+    D[curSubject].ok++;
+    D.streak = (D.streak || 0) + 1;
+    save();
+    detectMilestone(curSubject, D[curSubject].ok);
+    updateThemeDisplay();
+    if (!pendingMl) { showFeedback(true); }
+  } else {
+    btn.classList.add('wrong');
+    document.querySelectorAll(`#${curSubject}-choices .choice-btn`).forEach(b => {
+      if (b.textContent === correct) b.classList.add('correct');
+    });
+    sesNg++;
+    D.streak = 0;
+    save();
+    updateThemeDisplay();
+    showFeedback(false, correct);
+  }
+
+  document.getElementById(`${curSubject}-sc-ok`).textContent = sesOk;
+  document.getElementById(`${curSubject}-sc-ng`).textContent = sesNg;
+}
+
+/* ============================================================
+   MILESTONE DETECTION
+   ============================================================ */
+function detectMilestone(sub, ok) {
+  pendingMl = null;
+  if (sub === 'kanji') {
+    const now = getPokeStage(ok), prev = getPokeStage(ok-1);
+    if (now > prev) {
+      const p = POKE_STAGES[now];
+      pendingMl = {i: p.e, t: `${p.n}に しんか！！`, d: `かんじを ${ok}もん せいかい！\nポケモンが しんかしたよ！🎉`};
+    }
+  } else if (sub === 'math') {
+    const now = getMathBalls(ok), prev = getMathBalls(ok-1);
+    if (now > prev) {
+      pendingMl = now === 7
+        ? {i:'🐉', t:'シェンロン召喚！！', d:`ドラゴンボールを7つ全部あつめた！\n「どんな願いも叶えてやろう！」🐉`}
+        : {i:'🔮', t:`ドラゴンボール ${now}個め！`, d:`あと ${7-now}個で シェンロン召喚！\nがんばれ！`};
+    }
+  } else if (sub === 'english') {
+    const blk = getMcBlocks(ok);
+    const milestones = [{t:10,i:'🛖',n:'小屋完成！'},{t:20,i:'🏠',n:'家完成！'},{t:30,i:'🏰',n:'お城完成！'}];
+    milestones.forEach(m => {
+      if (blk === m.t && getMcBlocks(ok-1) < m.t)
+        pendingMl = {i:m.i, t:m.n, d:`${blk}ブロックつんだ！\nマイクラの世界が広がった！⛏️`};
+    });
+  } else if (sub === 'science' || sub === 'social') {
+    const now = getBBGame(ok), prev = getBBGame(ok-1);
+    if (now > prev) {
+      const e = BB_ENEMIES[Math.min(now-1, BB_ENEMIES.length-1)];
+      pendingMl = {i:'🏆', t:`${e}に勝利！！`, d:`試合に勝ったぞ！\n湘北は最強だ！🏀🔥`};
+    }
+  }
+
+  if (pendingMl) {
+    showConfetti();
+    setTimeout(() => {
+      document.getElementById('ml-icon').textContent  = pendingMl.i;
+      document.getElementById('ml-title').textContent = pendingMl.t;
+      document.getElementById('ml-desc').textContent  = pendingMl.d;
+      document.getElementById('ml-overlay').classList.add('show');
+    }, 900);
+  }
+}
+
+function closeMilestone() {
+  document.getElementById('ml-overlay').classList.remove('show');
+  pendingMl = null;
+  showFeedback(true);
+}
+
+/* ============================================================
+   FEEDBACK
+   ============================================================ */
+const CORRECT_MSGS = ['せいかい！🎉','すごい！✨','かっこいい！⚡','やるじゃん！👍','パーフェクト！🌟','天才！💥'];
+
+function showFeedback(ok, correctAns) {
+  const ov = document.getElementById('fb-overlay');
+  document.getElementById('fb-emoji').textContent = ok ? '⭕' : '❌';
+  if (ok) {
+    document.getElementById('fb-title').textContent = CORRECT_MSGS[Math.floor(Math.random()*CORRECT_MSGS.length)];
+    document.getElementById('fb-sub').textContent   = `れんぞく: ${D.streak}もん🔥`;
+    showConfetti();
+  } else {
+    document.getElementById('fb-title').textContent = 'おしい！';
+    document.getElementById('fb-sub').textContent   = `せいかいは「${correctAns}」だよ！`;
+  }
+  document.getElementById('fb-btn').textContent = curIdx < curQs.length - 1 ? 'つぎへ ▶' : 'けっか をみる';
+  document.getElementById('fb-btn').onclick = nextQuestion;
+  ov.classList.add('show');
+}
+
+function nextQuestion() {
+  document.getElementById('fb-overlay').classList.remove('show');
+  curIdx++;
+  if (curIdx >= curQs.length) showSessionEnd();
+  else renderQuestion();
+}
+
+function showSessionEnd() {
+  const rate = sesOk / curQs.length;
+  const msgs = ['まだまだ！れんしゅうしよう💪','よくがんばった！👏','すごい！😄','かんぺき！100てん！🏆🎊'];
+  const comment = rate === 1 ? msgs[3] : rate >= 0.7 ? msgs[2] : rate >= 0.5 ? msgs[1] : msgs[0];
+  document.getElementById('fb-emoji').textContent = rate === 1 ? '🌟' : rate >= 0.7 ? '😄' : '💪';
+  document.getElementById('fb-title').textContent = `${sesOk}/${curQs.length} せいかい！`;
+  document.getElementById('fb-sub').textContent   = comment;
+  document.getElementById('fb-btn').textContent   = 'ホームへもどる';
+  document.getElementById('fb-btn').onclick = () => {
+    document.getElementById('fb-overlay').classList.remove('show');
+    goHome();
+  };
+  if (rate >= 0.7) showConfetti();
+  document.getElementById('fb-overlay').classList.add('show');
+}
+
+/* ============================================================
+   THEME DISPLAY UPDATE
+   ============================================================ */
+function updateThemeDisplay() {
+  const ok = D[curSubject]?.ok || 0;
+
+  if (curSubject === 'kanji') {
+    const st = getPokeStage(ok), p = POKE_STAGES[st], n = POKE_STAGES[st+1];
+    document.getElementById('kanji-mascot').textContent    = p.e;
+    document.getElementById('kanji-lv-badge').textContent  = `Lv.${st+1}`;
+    document.querySelectorAll('#pokemon-stages .poke-stage').forEach((el,i) => {
+      el.classList.remove('unlocked','current');
+      if (i < st) el.classList.add('unlocked');
+      else if (i === st) el.classList.add('current');
+    });
+    if (n) {
+      const pct = Math.round((ok - p.t) / (n.t - p.t) * 100);
+      document.getElementById('kanji-theme-bar').style.width  = pct + '%';
+      document.getElementById('kanji-theme-txt').textContent  = `${p.n}→あと${n.t-ok}もんでしんか！`;
+      document.getElementById('kanji-milestone').textContent  = `次: ${n.e} ${n.n}`;
+    } else {
+      document.getElementById('kanji-theme-bar').style.width  = '100%';
+      document.getElementById('kanji-theme-txt').textContent  = `最強の${p.n}！！`;
+      document.getElementById('kanji-milestone').textContent  = '🐉 りゅうモン完全進化！';
+    }
+
+  } else if (curSubject === 'math') {
+    const balls = getMathBalls(ok);
+    for (let i=1;i<=7;i++) {
+      const el = document.getElementById('db'+i);
+      if (i <= balls) el.classList.add('collected');
+      else el.classList.remove('collected');
+    }
+    const rem = 10 - (ok % 10);
+    document.getElementById('math-theme-txt').textContent =
+      balls < 7 ? `${balls}/7ドラゴンボール！あと${rem}もんで次のボール！` : '7つ全部！シェンロン召喚！🐉';
+    document.getElementById('math-milestone').textContent =
+      balls === 7 ? '🐉 神龍よ！' : `次まであと${rem}もん`;
+
+  } else if (curSubject === 'english') {
+    const blk = getMcBlocks(ok);
+    const grid = document.getElementById('minecraft-grid');
+    grid.innerHTML = '';
+    for (let i=0;i<30;i++) {
+      const b = document.createElement('div');
+      b.className = 'mc-block' + (i < blk ? ' placed' : '');
+      grid.appendChild(b);
+    }
+    const nextM = blk < 10 ? 10 : blk < 20 ? 20 : 30;
+    const nextN = nextM === 10 ? '小屋' : nextM === 20 ? '家' : 'お城';
+    document.getElementById('english-theme-txt').textContent =
+      blk >= 30 ? '🏰 お城完成！最強のマインクラフター！' : `${blk}ブロック！あと${nextM-blk}で${nextN}完成！`;
+    document.getElementById('english-milestone').textContent =
+      blk >= 30 ? '🏰 全完成！' : blk >= 20 ? '🏠 家完成✅' : blk >= 10 ? '🛖 小屋完成✅' : '🏗️ ブロックをおこう！';
+
+  } else if (curSubject === 'science' || curSubject === 'social') {
+    const s = curSubject;
+    const sc = getBBScore(ok), game = getBBGame(ok), gameSc = sc % 60;
+    const enemy = BB_ENEMIES[Math.min(game, BB_ENEMIES.length-1)];
+    document.getElementById(`${s}-score`).textContent  = gameSc;
+    document.getElementById(`${s}-escore`).textContent = Math.max(0, gameSc - Math.floor(Math.random()*8+3));
+    document.getElementById(`${s}-ename`).textContent  = enemy;
+    document.getElementById(`${s}-theme-bar`).style.width = Math.round((gameSc/60)*100) + '%';
+    document.getElementById(`${s}-theme-txt`).textContent = `${gameSc}/60点！あと${60-gameSc}点で${enemy}に勝利！`;
+  }
+}
+
+/* ============================================================
+   CONFETTI
+   ============================================================ */
+function showConfetti() {
+  const wrap = document.getElementById('confetti');
+  wrap.innerHTML = '';
+  const colors = ['#FFD700','#FF6B6B','#4ECDC4','#45B7D1','#96CEB4','#FFEAA7','#DDA0DD','#98FB98'];
+  for (let i=0;i<35;i++) {
+    const p = document.createElement('div');
+    p.className = 'cp';
+    const sz = Math.random()*8+5;
+    p.style.cssText = `
+      left:${Math.random()*100}%;
+      width:${sz}px; height:${sz}px;
+      background:${colors[Math.floor(Math.random()*colors.length)]};
+      border-radius:${Math.random()>.5?'50%':'3px'};
+      animation-duration:${Math.random()*1.2+1.3}s;
+      animation-delay:${Math.random()*.4}s;
+    `;
+    wrap.appendChild(p);
+  }
+  setTimeout(() => { wrap.innerHTML = ''; }, 2800);
+}
+
+/* ============================================================
+   STARS
+   ============================================================ */
+function createStars() {
+  const wrap = document.getElementById('stars');
+  for (let i=0;i<45;i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const sz = Math.random()*2.2+.8;
+    s.style.cssText = `
+      width:${sz}px; height:${sz}px;
+      left:${Math.random()*100}%; top:${Math.random()*100}%;
+      animation-delay:${Math.random()*3}s;
+      animation-duration:${Math.random()*2+1.5}s;
+    `;
+    wrap.appendChild(s);
+  }
+}
+
+/* ============================================================
+   INIT
+   ============================================================ */
+createStars();
+updateHome();
+</script>
+</body>
+</html>
